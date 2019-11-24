@@ -21,7 +21,7 @@ class MapScreenData {
 }
 
 class MapVisibleRegionBloc {
-  /// BehaviorSubjects is used because it keeps only the latest item
+  // BehaviorSubject is used because it keeps only the latest item
   BehaviorSubject<MapScreenData> _mapScreenData = new BehaviorSubject();
 
   Observable<MapScreenData> get mapScreenData$ => _mapScreenData.stream;
@@ -33,21 +33,6 @@ class MapVisibleRegionBloc {
   void addVisibleRegion(
       LatLngBounds visibleRegion, CameraPosition cameraPosition) {
     _mapScreenData.sink.add(MapScreenData(visibleRegion, cameraPosition));
-  }
-}
-
-// todo list of string to images class
-class ImageBloc {
-  BehaviorSubject<List<String>> _urlSubject = new BehaviorSubject();
-
-  Observable<List<String>> get urls$ => _urlSubject.stream;
-
-  void dispose() {
-    _urlSubject.close();
-  }
-
-  void addImages(List<String> images) {
-    _urlSubject.sink.add(images);
   }
 }
 
@@ -108,7 +93,6 @@ class FireMapState extends State<FireMap> {
   Geoflutterfire geo = Geoflutterfire();
   GoogleMapController _mapController;
 
-  // todo add flutter_bloc
   MapVisibleRegionBloc mapVisibleRegionBloc = MapVisibleRegionBloc();
 
   Observable<Set<Marker>> markers$;
@@ -185,8 +169,7 @@ class FireMapState extends State<FireMap> {
                */
               return StreamBuilder(
                 stream: markers$,
-                builder:
-                    (context, AsyncSnapshot<Set<Marker>> markersSnapshot) {
+                builder: (context, AsyncSnapshot<Set<Marker>> markersSnapshot) {
                   var initialCameraPosition = CameraPosition(
                     target: LatLng(initialLocationSnapshot.data.latitude,
                         initialLocationSnapshot.data.longitude),
@@ -283,8 +266,6 @@ class FireMapState extends State<FireMap> {
       return screenDiameterInKilometers;
     }
 
-    // todo start saving in Git
-    // todo make it listen to the map location, not the user
     var cameraPosition$ = mapVisibleRegionBloc.mapScreenData$.debounceTime(
       Duration(milliseconds: 150),
     ); // location updates are very frequent by default
