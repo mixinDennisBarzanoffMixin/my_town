@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:my_town/report_problem.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-
-void main() => runApp(MyApp());
 
 class MapScreenData {
   // used as a tuple (like a Kotlin data class)
@@ -36,6 +36,11 @@ class MapVisibleRegionBloc {
   }
 }
 
+void main() {
+  debugPaintSizeEnabled = true;
+  runApp(MyApp());
+}
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -47,10 +52,19 @@ class MyApp extends StatelessWidget {
         ),
         body: FireMap(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: FloatingActionButton.extended(
-          icon: Icon(Icons.add),
-          label: Text("Report Problem"),
-          onPressed: () {},
+        floatingActionButton: Builder( // todo remove
+          builder: (context) => FloatingActionButton.extended(
+            icon: Icon(Icons.add),
+            label: Text("Report Problem"),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReportProblem(),
+                ),
+              );
+            },
+          ),
         ),
         bottomNavigationBar: BottomAppBar(
           child: Container(
@@ -77,7 +91,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// todo convert to stateless
 class FireMap extends StatefulWidget {
   @override
   State createState() => FireMapState();
@@ -85,11 +98,9 @@ class FireMap extends StatefulWidget {
 
 class FireMapState extends State<FireMap> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseStorage _storage =
-      FirebaseStorage(storageBucket: 'gs://my-site-c41d6.appspot.com');
 
   Geolocator locator = Geolocator();
-  Firestore firestore = Firestore.instance;
+  Firestore db = Firestore.instance;
   Geoflutterfire geo = Geoflutterfire();
   GoogleMapController _mapController;
 
@@ -97,7 +108,7 @@ class FireMapState extends State<FireMap> {
 
   Observable<Set<Marker>> markers$;
   Observable<Set<String>> imageUrls$;
-  var _initialLocation;
+  Future<Position> _initialLocation;
 
   @override
   void initState() {
@@ -106,53 +117,43 @@ class FireMapState extends State<FireMap> {
     var locationDocuments$ = _locationDocuments().shareReplay(maxSize: 1);
 
     var markers$ = locationDocuments$
-        .map((List<DocumentSnapshot> documents) => documents.map(
-              (document) {
-                // todo create marker from document
-                GeoPoint pos = document.data['position']['geopoint'];
-                double distance = document.data['distance'];
+        .map((List<DocumentSnapshot> documents) => documents.map((document) {
+              GeoPoint pos = document.data['position']['geopoint'];
+              double distance = document.data['distance'];
 
-                // document id is the id of the marker since markers represent individual documents
-                var markerId = MarkerId(document.documentID);
-                return Marker(
-                  markerId: markerId,
-                  position: LatLng(pos.latitude, pos.longitude),
-                  // todo make use of anchor (custom dot that connects the icon to the location)
-                  infoWindow: InfoWindow(
-                      title: 'Magic Marker',
-                      snippet: '$distance kilometers from query center'),
-                );
-              },
-            ).toSet());
+              // document id is the id of the marker since markers represent individual documents
+              var markerId = MarkerId(document.documentID);
+              return Marker(
+                markerId: markerId,
+                position: LatLng(pos.latitude, pos.longitude),
+                // todo make use of anchor (custom dot that connects the icon to the location)
+                infoWindow: InfoWindow(
+                    title: 'Magic Marker',
+                    snippet: '$distance kilometers from query center'),
+              );
+            }).toSet());
 
     var images$ = locationDocuments$
-        .switchMap(
-          (documentList) => Observable.fromFuture(
-            Future.wait(
-              documentList.map(
-                (document) => _storage
-                    .ref()
-                    .child(document.documentID + '.jpeg')
-                    .getDownloadURL(),
-              ),
-            ),
-          ),
+        .map(
+          (documentList) => documentList
+              .map(
+                (document) => document.data['imageUrl'] as String,
+                // element at index zero is the chosen one
+              )
+              .toSet(),
         )
         .doOnData(print);
 
-    setState(() {
-      this.markers$ = markers$;
-      // todo fix this garbage, which is just for casting
-      this.imageUrls$ = images$
-          .map((images) => images.map((image) => image as String).toSet());
-      this._initialLocation = locator.getCurrentPosition();
-    });
+    this.markers$ = markers$;
+    this.imageUrls$ = images$;
+    this._initialLocation = locator.getCurrentPosition();
   }
 
   @override
   build(context) {
     var margin = 20.0;
     print(MediaQuery.of(context).size.height);
+    print(_initialLocation);
     return Stack(
       children: [
         FutureBuilder(
@@ -161,18 +162,20 @@ class FireMapState extends State<FireMap> {
             // markers$ is subscribed to only once the initial location is gotten
             if (initialLocationSnapshot.hasData)
               /*
-                render the map and subscribe to the markers
-                (which depend not on the user location,
-                but on the map screen location, but by setting it,
-                we also set the screen location)
-                only after the location has been taken.
-               */
+                  render the map and subscribe to the markers
+                  (which depend not on the user location,
+                  but on the map screen location, but by setting it,
+                  we also set the screen location)
+                  only after the location has been taken.
+                 */
               return StreamBuilder(
                 stream: markers$,
                 builder: (context, AsyncSnapshot<Set<Marker>> markersSnapshot) {
                   var initialCameraPosition = CameraPosition(
-                    target: LatLng(initialLocationSnapshot.data.latitude,
-                        initialLocationSnapshot.data.longitude),
+                    target: LatLng(
+                      initialLocationSnapshot.data.latitude,
+                      initialLocationSnapshot.data.longitude,
+                    ),
                     zoom: 10,
                   );
 
@@ -190,13 +193,13 @@ class FireMapState extends State<FireMap> {
                       setState(() {
                         this._mapController = mapController;
                       });
-                      // todo fix
                       mapVisibleRegionBloc.addVisibleRegion(
-                          await _mapController.getVisibleRegion(),
-                          initialCameraPosition);
+                        await _mapController.getVisibleRegion(),
+                        initialCameraPosition,
+                      );
                     },
                     // no maximum zoom
-                    minMaxZoomPreference: MinMaxZoomPreference(14, null),
+                    minMaxZoomPreference: MinMaxZoomPreference(null, null),
                     // data will be null in waiting state
                     //todo make the list of markers a set
                     markers: markersSnapshot.data?.toSet(),
@@ -241,15 +244,6 @@ class FireMapState extends State<FireMap> {
     );
   }
 
-//  Future<DocumentReference> _addGeoPoint() async {
-//    var pos = await location.getLocation();
-//    GeoFirePoint point =
-//        geo.point(latitude: pos.latitude, longitude: pos.longitude);
-//    return firestore
-//        .collection('locations')
-//        .add({'position': point.data, 'name': 'Yay I can be queried!'});
-//  }
-
   Observable<List<DocumentSnapshot>> _locationDocuments() {
     GeoFirePoint center(LatLng position) =>
         geo.point(latitude: position.latitude, longitude: position.longitude);
@@ -279,7 +273,7 @@ class FireMapState extends State<FireMap> {
         print('New map position update: ' + location.toString());
 
         // Make a reference to firestore
-        var ref = firestore.collection('locations');
+        var ref = db.collection('issues');
 
         return Observable.fromFuture(radius).switchMap(
           // wait for the radius to be calculated
