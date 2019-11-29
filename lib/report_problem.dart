@@ -138,7 +138,7 @@ class _ReportProblemState extends State<ReportProblem> {
     });
 
     var storageRef =
-        _storage.ref().child('images/${firestoreRef.documentID}.jpg');
+        _storage.ref().child('issues/${firestoreRef.documentID}.jpg');
 
     var task = storageRef.putFile(issue.imageFile);
     task.onComplete.then(

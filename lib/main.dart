@@ -8,7 +8,6 @@ import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/report_problem.dart';
-import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -137,7 +136,7 @@ class FireMapState extends State<FireMap> {
         .map(
           (documentList) => documentList
               .map(
-                (document) => document.data['imageUrl'] as String,
+                (document) => document.data['thumbnailUrl'] as String,
                 // element at index zero is the chosen one
               )
               .toSet(),
