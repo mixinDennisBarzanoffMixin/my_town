@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:my_town/IssueFetched.dart';
 import 'package:my_town/report_problem.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -36,7 +37,7 @@ class MapVisibleRegionBloc {
 }
 
 void main() {
-  debugPaintSizeEnabled = true;
+  // debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 
@@ -51,7 +52,8 @@ class MyApp extends StatelessWidget {
         ),
         body: FireMap(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Builder( // todo remove
+        floatingActionButton: Builder(
+          // todo remove
           builder: (context) => FloatingActionButton.extended(
             icon: Icon(Icons.add),
             label: Text("Report Problem"),
@@ -113,33 +115,40 @@ class FireMapState extends State<FireMap> {
   void initState() {
     super.initState();
     _auth.signInAnonymously();
-    var locationDocuments$ = _locationDocuments().shareReplay(maxSize: 1);
+    var issues$ = _issueDocuments()
+        .map((documents) => documents
+            .map((document) => IssueFetched.fromDocument(document))
+            .toList())
+        .doOnData(print)
+        .shareReplay(maxSize: 1);
 
-    var markers$ = locationDocuments$
-        .map((List<DocumentSnapshot> documents) => documents.map((document) {
-              GeoPoint pos = document.data['position']['geopoint'];
-              double distance = document.data['distance'];
+    var markers$ =
+        issues$.map((List<IssueFetched> issues) => issues.map((issue) {
+              GeoPoint pos = issue.geopoint;
+              double distance = issue.distance;
 
               // document id is the id of the marker since markers represent individual documents
-              var markerId = MarkerId(document.documentID);
+              var markerId = MarkerId(issue.id);
               return Marker(
                 markerId: markerId,
                 position: LatLng(pos.latitude, pos.longitude),
                 // todo make use of anchor (custom dot that connects the icon to the location)
                 infoWindow: InfoWindow(
-                    title: 'Magic Marker',
-                    snippet: '$distance kilometers from query center'),
+                  title: 'Magic Marker',
+                  snippet: '${distance}km from query center',
+                ),
               );
             }).toSet());
 
-    var images$ = locationDocuments$
+    var images$ = issues$
         .map(
-          (documentList) => documentList
-              .map(
-                (document) => document.data['thumbnailUrl'] as String,
-                // element at index zero is the chosen one
-              )
-              .toSet(),
+          (issues) => issues.map((issue) {
+            print(issues);
+            return issue.thumbnailUrl ?? issue.imageUrl;
+            // if there is still no url of lower quality - use the original one
+          }
+              // element at index zero is the chosen one
+              ).toSet(),
         )
         .doOnData(print);
 
@@ -243,7 +252,7 @@ class FireMapState extends State<FireMap> {
     );
   }
 
-  Observable<List<DocumentSnapshot>> _locationDocuments() {
+  Observable<List<DocumentSnapshot>> _issueDocuments() {
     GeoFirePoint center(LatLng position) =>
         geo.point(latitude: position.latitude, longitude: position.longitude);
 
@@ -274,15 +283,17 @@ class FireMapState extends State<FireMap> {
         // Make a reference to firestore
         var ref = db.collection('issues');
 
-        return Observable.fromFuture(radius).switchMap(
-          // wait for the radius to be calculated
-          (radius) => geo.collection(collectionRef: ref).within(
-                center: center(location),
-                radius: radius,
-                field: 'position',
-                strictMode: true,
-              ),
-        );
+        return Observable.fromFuture(radius)
+            .switchMap(
+              // wait for the radius to be calculated
+              (radius) => geo.collection(collectionRef: ref).within(
+                    center: center(location),
+                    radius: radius,
+                    field: 'position',
+                    strictMode: true,
+                  ),
+            )
+            .doOnData(print);
       },
     );
   }
