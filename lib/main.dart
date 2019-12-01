@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/IssueFetched.dart';
 import 'package:my_town/report_problem.dart';
+import 'package:my_town/issue_detail.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -37,7 +39,7 @@ class MapVisibleRegionBloc {
 }
 
 void main() {
-  // debugPaintSizeEnabled = true;
+  debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 
@@ -92,6 +94,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
+extension IssueFetchedExtension on IssueFetched {
+  Marker toMarker() {
+    GeoPoint pos = this.geopoint;
+    double distance = this.distance;
+
+    // document id is the id of the marker since markers represent individual documents
+    var markerId = MarkerId(this.id);
+    return Marker(
+      markerId: markerId,
+      position: LatLng(pos.latitude, pos.longitude),
+      // todo make use of anchor (custom dot that connects the icon to the location)
+      infoWindow: InfoWindow(
+        title: 'Magic Marker',
+        snippet: '$distance km from query center',
+      ),
+    );
+  }
+}
+
 class FireMap extends StatefulWidget {
   @override
   State createState() => FireMapState();
@@ -109,6 +130,7 @@ class FireMapState extends State<FireMap> {
 
   Observable<Set<Marker>> markers$;
   Observable<Set<String>> imageUrls$;
+  Observable<List<IssueFetched>> issues$;
   Future<Position> _initialLocation;
 
   @override
@@ -116,29 +138,16 @@ class FireMapState extends State<FireMap> {
     super.initState();
     _auth.signInAnonymously();
     var issues$ = _issueDocuments()
-        .map((documents) => documents
-            .map((document) => IssueFetched.fromDocument(document))
-            .toList())
+        .map(
+          (issues) => issues
+              .map((document) => IssueFetched.fromGeoFireDocument(document))
+              .toList(),
+        )
         .doOnData(print)
         .shareReplay(maxSize: 1);
 
-    var markers$ =
-        issues$.map((List<IssueFetched> issues) => issues.map((issue) {
-              GeoPoint pos = issue.geopoint;
-              double distance = issue.distance;
-
-              // document id is the id of the marker since markers represent individual documents
-              var markerId = MarkerId(issue.id);
-              return Marker(
-                markerId: markerId,
-                position: LatLng(pos.latitude, pos.longitude),
-                // todo make use of anchor (custom dot that connects the icon to the location)
-                infoWindow: InfoWindow(
-                  title: 'Magic Marker',
-                  snippet: '${distance}km from query center',
-                ),
-              );
-            }).toSet());
+    var markers$ = issues$.map((List<IssueFetched> issues) =>
+        issues.map((issue) => issue.toMarker()).toSet());
 
     var images$ = issues$
         .map(
@@ -152,6 +161,7 @@ class FireMapState extends State<FireMap> {
         )
         .doOnData(print);
 
+    this.issues$ = issues$;
     this.markers$ = markers$;
     this.imageUrls$ = images$;
     this._initialLocation = locator.getCurrentPosition();
@@ -162,68 +172,71 @@ class FireMapState extends State<FireMap> {
     var margin = 20.0;
     print(MediaQuery.of(context).size.height);
     print(_initialLocation);
-    return Stack(
-      children: [
-        FutureBuilder(
-          future: _initialLocation,
-          builder: (context, AsyncSnapshot<Position> initialLocationSnapshot) {
-            // markers$ is subscribed to only once the initial location is gotten
-            if (initialLocationSnapshot.hasData)
-              /*
-                  render the map and subscribe to the markers
-                  (which depend not on the user location,
-                  but on the map screen location, but by setting it,
-                  we also set the screen location)
-                  only after the location has been taken.
-                 */
-              return StreamBuilder(
-                stream: markers$,
-                builder: (context, AsyncSnapshot<Set<Marker>> markersSnapshot) {
-                  var initialCameraPosition = CameraPosition(
-                    target: LatLng(
-                      initialLocationSnapshot.data.latitude,
-                      initialLocationSnapshot.data.longitude,
-                    ),
-                    zoom: 10,
-                  );
+    return StreamBuilder<List<IssueFetched>>(
+      stream: issues$,
+      builder: (context, issuesSnapshot) {
+        return Stack(
+          children: [
+            FutureBuilder(
+              future: _initialLocation,
+              builder:
+                  (context, AsyncSnapshot<Position> initialLocationSnapshot) {
+                // markers$ is subscribed to only once the initial location is gotten
+                if (initialLocationSnapshot.hasData)
+                  /*
+                      render the map and subscribe to the markers
+                      (which depend not on the user location,
+                      but on the map screen location, but by setting it,
+                      we also set the screen location)
+                      only after the location has been taken.
+                     */
+                  return Builder(
+                    builder: (context) {
+                      print('rebuilt');
+                      final markers = issuesSnapshot.data
+                          ?.map((issues) => issues.toMarker());
+                      var initialCameraPosition = CameraPosition(
+                        target: LatLng(
+                          initialLocationSnapshot.data.latitude,
+                          initialLocationSnapshot.data.longitude,
+                        ),
+                        zoom: 10,
+                      );
 
-                  return GoogleMap(
-                    initialCameraPosition: initialCameraPosition,
-                    mapType: MapType.normal,
-                    onCameraMove: (CameraPosition cameraPosition) async {
-                      // add item to bloc for the rest of the UI to react properly
-                      mapVisibleRegionBloc.addVisibleRegion(
-                        await _mapController.getVisibleRegion(),
-                        cameraPosition,
+                      return GoogleMap(
+                        initialCameraPosition: initialCameraPosition,
+                        mapType: MapType.normal,
+                        onCameraMove: (CameraPosition cameraPosition) async {
+                          // add item to bloc for the rest of the UI to react properly
+                          mapVisibleRegionBloc.addVisibleRegion(
+                            await _mapController.getVisibleRegion(),
+                            cameraPosition,
+                          );
+                        },
+                        onMapCreated: (mapController) async {
+                          setState(() {
+                            this._mapController = mapController;
+                          });
+                          mapVisibleRegionBloc.addVisibleRegion(
+                            await _mapController.getVisibleRegion(),
+                            initialCameraPosition,
+                          );
+                        },
+                        // no maximum zoom
+                        minMaxZoomPreference: MinMaxZoomPreference(null, null),
+                        // data will be null in waiting state
+                        //todo make the list of markers a set
+                        markers: markers?.toSet(),
                       );
                     },
-                    onMapCreated: (mapController) async {
-                      setState(() {
-                        this._mapController = mapController;
-                      });
-                      mapVisibleRegionBloc.addVisibleRegion(
-                        await _mapController.getVisibleRegion(),
-                        initialCameraPosition,
-                      );
-                    },
-                    // no maximum zoom
-                    minMaxZoomPreference: MinMaxZoomPreference(null, null),
-                    // data will be null in waiting state
-                    //todo make the list of markers a set
-                    markers: markersSnapshot.data?.toSet(),
                   );
-                },
-              );
-            else
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-          },
-        ),
-        StreamBuilder(
-          stream: imageUrls$,
-          builder: (context, AsyncSnapshot<Set<String>> urlsSnapshot) {
-            return SlidingUpPanel(
+                else
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+              },
+            ),
+            SlidingUpPanel(
               maxHeight: MediaQuery.of(context).size.height,
               minHeight: 250,
               panel: Align(
@@ -233,22 +246,35 @@ class FireMapState extends State<FireMap> {
                   width: MediaQuery.of(context).size.width - margin * 2,
                   child: ListView(
                     children: [
-                      if (urlsSnapshot.hasData)
-                        for (var url in urlsSnapshot.data)
-                          Container(
-                            margin: EdgeInsets.all(10.0),
-                            width: 160.0,
-                            child: Image.network(url),
+                      if (issuesSnapshot.hasData)
+                        for (var issue in issuesSnapshot.data)
+                          GestureDetector(
+                            child: Container(
+                              margin: EdgeInsets.all(10.0),
+                              width: 160.0,
+                              child: Hero(
+                                tag: issue.imageUrl,
+                                child: CachedNetworkImage(
+                                  imageUrl: issue.thumbnailUrl ?? issue.imageUrl,
+                                ),
+                              ),
+                            ),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ViewIssue(issue),
+                              ),
+                            ),
                           )
                     ],
                     scrollDirection: Axis.horizontal,
                   ),
                 ),
               ),
-            );
-          },
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -283,17 +309,15 @@ class FireMapState extends State<FireMap> {
         // Make a reference to firestore
         var ref = db.collection('issues');
 
-        return Observable.fromFuture(radius)
-            .switchMap(
-              // wait for the radius to be calculated
-              (radius) => geo.collection(collectionRef: ref).within(
-                    center: center(location),
-                    radius: radius,
-                    field: 'position',
-                    strictMode: true,
-                  ),
-            )
-            .doOnData(print);
+        return Observable.fromFuture(radius).switchMap(
+          // wait for the radius to be calculated
+          (radius) => geo.collection(collectionRef: ref).within(
+                center: center(location),
+                radius: radius,
+                field: 'position',
+                strictMode: true,
+              ),
+        );
       },
     );
   }
