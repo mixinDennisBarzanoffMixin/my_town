@@ -20,4 +20,6 @@ class IssueFetched {
          document.data['distance'],
          document.data['position']['geopoint'],
        );
+
+  get hasThumbnail => this.thumbnailUrl != null;
 }

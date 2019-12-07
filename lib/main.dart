@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/IssueFetched.dart';
 import 'package:my_town/report_problem.dart';
 import 'package:my_town/issue_detail.dart';
+import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -39,7 +40,7 @@ class MapVisibleRegionBloc {
 }
 
 void main() {
-  debugPaintSizeEnabled = true;
+  // debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 
@@ -47,7 +48,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
           title: Text("My town"),
@@ -244,30 +244,17 @@ class FireMapState extends State<FireMap> {
                 child: Container(
                   height: 200.0,
                   width: MediaQuery.of(context).size.width - margin * 2,
-                  child: ListView(
-                    children: [
-                      if (issuesSnapshot.hasData)
-                        for (var issue in issuesSnapshot.data)
-                          GestureDetector(
-                            child: Container(
-                              margin: EdgeInsets.all(10.0),
-                              width: 160.0,
-                              child: Hero(
-                                tag: issue.imageUrl,
-                                child: CachedNetworkImage(
-                                  imageUrl: issue.thumbnailUrl ?? issue.imageUrl,
-                                ),
-                              ),
-                            ),
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ViewIssue(issue),
-                              ),
-                            ),
-                          )
-                    ],
-                    scrollDirection: Axis.horizontal,
+                  child: Builder(
+                    builder: (context) {
+                      return ListView(
+                        children: [
+                          if (issuesSnapshot.hasData)
+                            for (var issue in issuesSnapshot.data)
+                              IssueImage(issue)
+                        ],
+                        scrollDirection: Axis.horizontal,
+                      );
+                    },
                   ),
                 ),
               ),
@@ -317,6 +304,62 @@ class FireMapState extends State<FireMap> {
                 field: 'position',
                 strictMode: true,
               ),
+        );
+      },
+    );
+  }
+}
+
+class IssueImage extends StatefulWidget {
+  const IssueImage(
+    this.issue, {
+    Key key,
+  }) : super(key: key);
+
+  final IssueFetched issue;
+
+  @override
+  _IssueImageState createState() => _IssueImageState();
+}
+
+class _IssueImageState extends State<IssueImage> {
+  Future<Uint8List> imageBytesFuture;
+  @override
+  void initState() {
+    super.initState();
+    imageBytesFuture =
+        networkImageToByte(widget.issue.thumbnailUrl ?? widget.issue.imageUrl);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: imageBytesFuture,
+      builder: (context, imageBytes) {
+        return Container(
+          margin: EdgeInsets.all(10.0),
+          width: 160.0,
+          child: imageBytes.hasData
+              ? GestureDetector(
+                  child: Container(
+                    child: Hero(
+                      tag: widget.issue.imageUrl,
+                      child: Image.memory(imageBytes.data),
+                    ),
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => IssueDetailPage(
+                        widget.issue,
+                        imageBytes.data,
+                      ),
+                    ),
+                  ),
+                )
+              : Center(
+                  child: CircularProgressIndicator(),
+                ),
         );
       },
     );

@@ -4,6 +4,12 @@
 <dict>
     <key>io.flutter.embedded_views_preview</key>
     <string>YES</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>The app needs to retrieve an image for the issue</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The app needs to take a picture of the problem</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Audio needs to be recorded for the video</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>When In Use Permission</string>
     <key>NSLocationAlwaysUsageDescription</key>
