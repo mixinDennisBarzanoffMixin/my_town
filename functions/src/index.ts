@@ -6,10 +6,10 @@ import { basename } from 'path'
 
 admin.initializeApp()
 
-var defaultStorage = admin.storage()
-var db = admin.firestore()
-
-exports.removeProfilePictureWhenDeletingUserData = functions.firestore
+const defaultStorage = admin.storage()
+const db = admin.firestore()
+// todo rename function
+exports.removeIssueImagesAfterDeleting = functions.firestore
   .document('issues/{issueId}')
   .onDelete((snap, context) => {
     const issueId = context.params.issueId
@@ -48,7 +48,8 @@ exports.addGeneratedThumbnailToDocument = functions.storage
       const [newMetadata] = await bucket.file(file.name).setMetadata(metadata)
       console.log(newMetadata)
       const issueRef = db.doc(`issues/${issueId}`)
-      const thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/my-site-c41d6.appspot.com/o/${encodeURIComponent(file.name)}?alt=media&token=${token}`
+      
+      const thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/my-town-ba556.appspot.com/o/${encodeURIComponent(file.name)}?alt=media&token=${token}`
       await issueRef.set({ thumbnailUrl }, { merge: true })
       // add the thumbnail non-destructively
     }

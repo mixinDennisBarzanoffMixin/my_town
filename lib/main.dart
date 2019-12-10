@@ -14,6 +14,12 @@ import 'package:my_town/issue_detail.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+// import 'package:firebase_core/firebase_core.dart';
+
+void main() {
+  // debugPaintSizeEnabled = true;
+  runApp(MyApp());
+}
 
 class MapScreenData {
   // used as a tuple (like a Kotlin data class)
@@ -39,10 +45,6 @@ class MapVisibleRegionBloc {
   }
 }
 
-void main() {
-  // debugPaintSizeEnabled = true;
-  runApp(MyApp());
-}
 
 class MyApp extends StatelessWidget {
   @override
