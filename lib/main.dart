@@ -9,12 +9,11 @@ import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/IssueFetched.dart';
+import 'package:my_town/bottom_app_bar.dart';
 import 'package:my_town/report_problem.dart';
 import 'package:my_town/issue_detail.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
-// import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -45,54 +44,10 @@ class MapVisibleRegionBloc {
   }
 }
 
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("My town"),
-        ),
-        body: FireMap(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Builder(
-          // todo remove
-          builder: (context) => FloatingActionButton.extended(
-            icon: Icon(Icons.add),
-            label: Text("Report Problem"),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ReportProblem(),
-                ),
-              );
-            },
-          ),
-        ),
-        bottomNavigationBar: BottomAppBar(
-          child: Container(
-            height: 60,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.menu),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ),
-//          shape: CircularNotchedRectangle(),
-        ),
-      ),
-    );
+    return MaterialApp(home: Scaffold(body: FireMap()));
   }
 }
 
@@ -120,7 +75,8 @@ class FireMap extends StatefulWidget {
   State createState() => FireMapState();
 }
 
-class FireMapState extends State<FireMap> {
+class FireMapState
+    extends State<FireMap> /* with SingleTickerProviderStateMixin */ {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Geolocator locator = Geolocator();
@@ -134,10 +90,18 @@ class FireMapState extends State<FireMap> {
   Observable<Set<String>> imageUrls$;
   Observable<List<IssueFetched>> issues$;
   Future<Position> _initialLocation;
+  // AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
+
+    // _controller = AnimationController(
+    //   vsync: this,
+    //   duration: const Duration(milliseconds: 450),
+    //   value: 1.0,
+    // ); // todo use
+
     _auth.signInAnonymously();
     var issues$ = _issueDocuments()
         .map(
@@ -177,21 +141,21 @@ class FireMapState extends State<FireMap> {
     return StreamBuilder<List<IssueFetched>>(
       stream: issues$,
       builder: (context, issuesSnapshot) {
-        return Stack(
-          children: [
-            FutureBuilder(
+        return SafeArea(
+          child: Backdrop(
+            backLayer: FutureBuilder(
               future: _initialLocation,
               builder:
                   (context, AsyncSnapshot<Position> initialLocationSnapshot) {
                 // markers$ is subscribed to only once the initial location is gotten
                 if (initialLocationSnapshot.hasData)
                   /*
-                      render the map and subscribe to the markers
-                      (which depend not on the user location,
-                      but on the map screen location, but by setting it,
-                      we also set the screen location)
-                      only after the location has been taken.
-                     */
+                        render the map and subscribe to the markers
+                        (which depend not on the user location,
+                        but on the map screen location, but by setting it,
+                        we also set the screen location)
+                        only after the location has been taken.
+                      */
                   return Builder(
                     builder: (context) {
                       print('rebuilt');
@@ -216,6 +180,7 @@ class FireMapState extends State<FireMap> {
                           );
                         },
                         onMapCreated: (mapController) async {
+                          print('map created');
                           setState(() {
                             this._mapController = mapController;
                           });
@@ -238,30 +203,39 @@ class FireMapState extends State<FireMap> {
                   );
               },
             ),
-            SlidingUpPanel(
-              maxHeight: MediaQuery.of(context).size.height,
-              minHeight: 250,
-              panel: Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  height: 200.0,
-                  width: MediaQuery.of(context).size.width - margin * 2,
-                  child: Builder(
-                    builder: (context) {
-                      return ListView(
-                        children: [
-                          if (issuesSnapshot.hasData)
-                            for (var issue in issuesSnapshot.data)
-                              IssueImage(issue)
-                        ],
-                        scrollDirection: Axis.horizontal,
-                      );
-                    },
-                  ),
+            frontLayer: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: 200.0,
+                width: MediaQuery.of(context).size.width - margin * 2,
+                child: Builder(
+                  builder: (context) {
+                    return ListView(
+                      children: [
+                        if (issuesSnapshot.hasData)
+                          for (var issue in issuesSnapshot.data)
+                            IssueImage(issue)
+                      ],
+                      scrollDirection: Axis.horizontal,
+                    );
+                  },
                 ),
               ),
             ),
-          ],
+            frontAction: IconButton(
+              icon: Icon(Icons.android),
+              onPressed: () {
+                print('pressed');
+              },
+            ),
+            frontTitle: Text('all issues'),
+            backTitle: Text('Back'),
+            frontHeading: Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: Text('Issue images'),
+            ),
+          ),
         );
       },
     );

@@ -34,13 +34,11 @@ dependencies:
   rxdart: ^0.22.6
   provider: ^3.2.0
 
-  sliding_up_panel: ^0.3.6
   camera: ^0.5.7 
   image_picker: ^0.6.2+3
   
     # some devices have a messed up orientaion
   # flutter_exif_rotation: ^0.2.7 
-  exif: ^1.0.2
   # flutter_image_compress: ^0.6.3
   network_image_to_byte: ^0.0.1
   # image_fade: ^0.2.1
