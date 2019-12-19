@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:exif/exif.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
@@ -118,7 +117,7 @@ class _ReportProblemState extends State<ReportProblem> {
   /// Select an image via gallery or camera
   _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
-    await printExifOf(selected);
+    // await printExifOf(selected);
     
       if (selected != null) {
         // if the user exists the camera without picture -> null
@@ -128,29 +127,29 @@ class _ReportProblemState extends State<ReportProblem> {
       }
     }
   
-  printExifOf(File file) async {
+//   printExifOf(File file) async {
 
-  Map<String, IfdTag> data = await readExifFromFile(file);
+//   Map<String, IfdTag> data = await readExifFromFile(file);
 
-  if (data == null || data.isEmpty) {
-    print("No EXIF information found\n");
-    return;
-  }
+//   if (data == null || data.isEmpty) {
+//     print("No EXIF information found\n");
+//     return;
+//   }
 
-  if (data.containsKey('JPEGThumbnail')) {
-    print('File has JPEG thumbnail');
-    data.remove('JPEGThumbnail');
-  }
-  if (data.containsKey('TIFFThumbnail')) {
-    print('File has TIFF thumbnail');
-    data.remove('TIFFThumbnail');
-  }
+//   if (data.containsKey('JPEGThumbnail')) {
+//     print('File has JPEG thumbnail');
+//     data.remove('JPEGThumbnail');
+//   }
+//   if (data.containsKey('TIFFThumbnail')) {
+//     print('File has TIFF thumbnail');
+//     data.remove('TIFFThumbnail');
+//   }
 
-  for (String key in data.keys) {
-    print("$key (${data[key].tagType}): ${data[key]}");
-  }
+//   for (String key in data.keys) {
+//     print("$key (${data[key].tagType}): ${data[key]}");
+//   }
   
-}
+// }
 
 //
 //  /// Remove image

@@ -8,7 +8,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
 const double _kFrontHeadingHeight = 32.0; // front layer beveled rectangle
-const double _kFrontClosedHeight = 160.0 + _kFrontHeadingHeight; // 92.0; // front layer height when closed
+const double _kFrontClosedHeight =
+    160.0 + _kFrontHeadingHeight; // 92.0; // front layer height when closed
 const double _kBackAppBarHeight = 56.0; // back layer (options) appbar height
 
 // The size of the front layer heading's left and right beveled corners.
@@ -71,7 +72,7 @@ class _TappableWhileStatusIsState extends State<_TappableWhileStatusIs> {
       child: widget.child,
     );
     // todo reassigning a different child causes a destruction of the old one -> bad
-    // if (!_active) { 
+    // if (!_active) {
     //   child = FocusScope(
     //     canRequestFocus: false,
     //     debugLabel: '$_TappableWhileStatusIs',
@@ -272,91 +273,94 @@ class _BackdropState extends State<Backdrop>
           0.0, constraints.biggest.height - _kFrontClosedHeight, 0.0, 0.0),
       end: const RelativeRect.fromLTRB(0.0, _kBackAppBarHeight, 0.0, 0.0),
     ));
-    return Stack(
-      key: _backdropKey,
-      children: <Widget>[
-        // Back layer
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            _BackAppBar(
-              leading: widget.frontAction,
-              title: _CrossFadeTransition(
-                progress: _controller,
-                alignment: AlignmentDirectional.centerStart,
-                child0: Semantics(namesRoute: true, child: widget.frontTitle),
-                child1: Semantics(namesRoute: true, child: widget.backTitle),
-              ),
-              trailing: IconButton(
-                onPressed: _toggleFrontLayer,
-                tooltip: 'Toggle options page',
-                icon: AnimatedIcon(
-                  icon: AnimatedIcons.close_menu,
+    return Material(
+      // necessary for the rendering of the widget
+      child: Stack(
+        key: _backdropKey,
+        children: <Widget>[
+          // Back layer
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              _BackAppBar(
+                leading: widget.frontAction,
+                title: _CrossFadeTransition(
                   progress: _controller,
+                  alignment: AlignmentDirectional.centerStart,
+                  child0: Semantics(namesRoute: true, child: widget.frontTitle),
+                  child1: Semantics(namesRoute: true, child: widget.backTitle),
                 ),
-              ),
-            ),
-            Expanded(
-              child: _TappableWhileStatusIs(
-                AnimationStatus.dismissed,
-                controller: _controller,
-                child: Visibility(
-                  child: widget.backLayer,
-                  visible: _controller.status != AnimationStatus.completed,
-                  maintainState: true,
-                  maintainSize: true, // make invisible (still)
-                  maintainAnimation: true,
-                ),
-              ),
-            ),
-          ],
-        ),
-        // Front layer
-        PositionedTransition(
-          rect: frontRelativeRect,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (BuildContext context, Widget child) {
-              return PhysicalShape(
-                elevation: 12.0,
-                color: Theme.of(context).canvasColor,
-                clipper: ShapeBorderClipper(
-                  shape: BeveledRectangleBorder(
-                    borderRadius:
-                        _kFrontHeadingBevelRadius.transform(_controller.value),
+                trailing: IconButton(
+                  onPressed: _toggleFrontLayer,
+                  tooltip: 'Toggle options page',
+                  icon: AnimatedIcon(
+                    icon: AnimatedIcons.close_menu,
+                    progress: _controller,
                   ),
                 ),
-                clipBehavior: Clip.antiAlias,
-                child: child,
-              );
-            },
-            child: FadeTransition(
-              opacity: _frontOpacity,
-              child: widget.frontLayer,
-            ),
+              ),
+              Expanded(
+                child: _TappableWhileStatusIs(
+                  AnimationStatus.dismissed,
+                  controller: _controller,
+                  child: Visibility(
+                    child: widget.backLayer,
+                    visible: _controller.status != AnimationStatus.completed,
+                    maintainState: true,
+                    maintainSize: true, // make invisible (still)
+                    maintainAnimation: true,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        // The front "heading" is a (typically transparent) widget that's stacked on
-        // top of, and at the top of, the front layer. It adds support for dragging
-        // the front layer up and down and for opening and closing the front layer
-        // with a tap. It may obscure part of the front layer's topmost child.
-        if (widget.frontHeading != null)
+          // Front layer
           PositionedTransition(
             rect: frontRelativeRect,
-            child: ExcludeSemantics(
-              child: Container(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _toggleFrontLayer,
-                  onVerticalDragUpdate: _handleDragUpdate,
-                  onVerticalDragEnd: _handleDragEnd,
-                  child: widget.frontHeading,
-                ),
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (BuildContext context, Widget child) {
+                return PhysicalShape(
+                  elevation: 12.0,
+                  color: Theme.of(context).canvasColor,
+                  clipper: ShapeBorderClipper(
+                    shape: BeveledRectangleBorder(
+                      borderRadius: _kFrontHeadingBevelRadius
+                          .transform(_controller.value),
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: child,
+                );
+              },
+              child: FadeTransition(
+                opacity: _frontOpacity,
+                child: widget.frontLayer,
               ),
             ),
           ),
-      ],
+          // The front "heading" is a (typically transparent) widget that's stacked on
+          // top of, and at the top of, the front layer. It adds support for dragging
+          // the front layer up and down and for opening and closing the front layer
+          // with a tap. It may obscure part of the front layer's topmost child.
+          if (widget.frontHeading != null)
+            PositionedTransition(
+              rect: frontRelativeRect,
+              child: ExcludeSemantics(
+                child: Container(
+                  alignment: Alignment.topLeft,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _toggleFrontLayer,
+                    onVerticalDragUpdate: _handleDragUpdate,
+                    onVerticalDragEnd: _handleDragEnd,
+                    child: widget.frontHeading,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

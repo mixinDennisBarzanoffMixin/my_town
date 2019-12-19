@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_town/IssueFetched.dart';
+import 'package:my_town/shared/Issue_fetched.dart';
 
 class IssueDetailPage extends StatelessWidget {
   final IssueFetched issue;
