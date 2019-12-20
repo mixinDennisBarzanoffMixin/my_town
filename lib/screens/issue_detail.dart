@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 
-class IssueDetailPage extends StatelessWidget {
+class IssueDetailScreen extends StatelessWidget {
   final IssueFetched issue;
   final Uint8List detailImageBytes;
 
-  IssueDetailPage(this.issue, this.detailImageBytes);
+  IssueDetailScreen(this.issue, this.detailImageBytes);
 
   @override
   Widget build(BuildContext context) {

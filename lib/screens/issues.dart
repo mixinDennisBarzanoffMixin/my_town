@@ -58,13 +58,13 @@ extension IssueFetchedExtension on IssueFetched {
   }
 }
 
-class FireMap extends StatefulWidget {
+class IssuesScreen extends StatefulWidget {
   @override
-  State createState() => FireMapState();
+  State createState() => IssuesScreenState();
 }
 
-class FireMapState
-    extends State<FireMap> /* with SingleTickerProviderStateMixin */ {
+class IssuesScreenState
+    extends State<IssuesScreen> /* with SingleTickerProviderStateMixin */ {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Geolocator locator = Geolocator();
@@ -314,7 +314,7 @@ class _IssueImageState extends State<IssueImage> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => IssueDetailPage(
+                      builder: (context) => IssueDetailScreen(
                         widget.issue,
                         imageBytes.data,
                       ),

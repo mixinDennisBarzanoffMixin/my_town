@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
           '/': (context) => LoginScreen(),
-          '/issues': (context) => FireMap(),
+          '/issues': (context) => IssuesScreen(),
           // 'issue_detail': (context) => IssueDetail
-          '/report_issue': (context) => ReportProblem(),
+          '/report_issue': (context) => ReportIssueScreen(),
         },
     );
   }

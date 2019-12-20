@@ -20,12 +20,12 @@ class Issue {
   });
 }
 
-class ReportProblem extends StatefulWidget {
+class ReportIssueScreen extends StatefulWidget {
   @override
-  _ReportProblemState createState() => _ReportProblemState();
+  _ReportIssueScreenState createState() => _ReportIssueScreenState();
 }
 
-class _ReportProblemState extends State<ReportProblem> {
+class _ReportIssueScreenState extends State<ReportIssueScreen> {
   File _imageFile;
   final _formKey = GlobalKey<FormState>();
 
