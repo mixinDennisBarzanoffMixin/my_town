@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_town/screens/issue_detail.dart';
+import 'package:my_town/services/auth.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
-import 'package:my_town/shared/bottom_app_bar.dart';
+import 'package:my_town/shared/backdrop.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
@@ -12,8 +13,8 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-
 
 class MapScreenData {
   // used as a tuple (like a Kotlin data class)
@@ -130,6 +131,7 @@ class IssuesScreenState
       builder: (context, issuesSnapshot) {
         return SafeArea(
           child: Backdrop(
+            drawer: _AppDrawer(),
             backLayer: FutureBuilder(
               future: _initialLocation,
               builder:
@@ -192,28 +194,20 @@ class IssuesScreenState
             ),
             frontLayer: Align(
               alignment: Alignment.topCenter,
-              child: Container(
+              child: SizedBox(
                 height: 200.0,
-                width: MediaQuery.of(context).size.width - margin * 2,
-                child: Builder(
-                  builder: (context) {
-                    return ListView(
-                      children: [
-                        if (issuesSnapshot.hasData)
-                          for (var issue in issuesSnapshot.data)
-                            IssueImage(issue)
-                      ],
-                      scrollDirection: Axis.horizontal,
-                    );
-                  },
+                width: double.infinity, // stretch to the parent width
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: ListView(
+                    children: [
+                      if (issuesSnapshot.hasData)
+                        for (var issue in issuesSnapshot.data) IssueImage(issue)
+                    ],
+                    scrollDirection: Axis.horizontal,
+                  ),
                 ),
               ),
-            ),
-            frontAction: IconButton(
-              icon: Icon(Icons.android),
-              onPressed: () {
-                print('pressed');
-              },
             ),
             frontTitle: Text('all issues'),
             backTitle: Text('Back'),
@@ -311,15 +305,9 @@ class _IssueImageState extends State<IssueImage> {
                       child: Image.memory(imageBytes.data),
                     ),
                   ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IssueDetailScreen(
-                        widget.issue,
-                        imageBytes.data,
-                      ),
-                    ),
-                  ),
+                  onTap: () => Navigator.pushNamed(context, '/issue_detail',
+                      arguments:
+                          IssueDetailArguments(widget.issue, imageBytes.data)),
                 )
               : Center(
                   child: CircularProgressIndicator(),
@@ -327,5 +315,51 @@ class _IssueImageState extends State<IssueImage> {
         );
       },
     );
+  }
+}
+
+class _AppDrawer extends StatelessWidget { // todo this should be a higher hierarchy component
+  const _AppDrawer({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl = Provider.of<FirebaseUser>(context)?.photoUrl;
+    return Drawer(
+      // Add a ListView to the drawer. This ensures the user can scroll
+      // through the options in the drawer if there isn't enough vertical
+      // space to fit everything.
+      child: ListView(
+        // Important: Remove any padding from the ListView.
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Card(
+              child: CircleAvatar(
+                child: photoUrl != null ? Image.network(photoUrl) : Image.asset('assets/anonymous_avatar.png'),
+              ),
+              color: Colors.blue, // todo fix
+            ),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+          ),
+          ListTile(
+            title: Text('Item 1'),
+            onTap: () {
+              // Update the state of the app.
+              // ...
+            },
+          ),
+          ListTile(
+            title: Text('Item 2'),
+            onTap: () {
+              // Update the state of the app.
+              // ...
+            },
+          ),
+        ],
+      ),
+    );
+    ;
   }
 }

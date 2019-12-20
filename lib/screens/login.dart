@@ -44,7 +44,7 @@ class LoginScreenState extends State<LoginScreen> {
               onPressed: () async {
                 var user = await auth.googleSignIn();
                 if (user != null) {
-                  Navigator.pushReplacementNamed(context, '/issues');
+                  Navigator.pushNamedAndRemoveUntil(context, '/issues', (route) => route == '/');
                 }
               },
             )

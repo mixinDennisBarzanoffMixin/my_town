@@ -6,6 +6,15 @@ class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _db = Firestore.instance;
+
+  /// singleton
+  AuthService._internal();
+  static AuthService instance = AuthService._internal();
+
+  factory AuthService() {
+    return instance;
+  }
+
   Future<FirebaseUser> get getUser => _auth.currentUser();
 
   Stream<FirebaseUser> get user => _auth.onAuthStateChanged;
@@ -53,4 +62,5 @@ class AuthService {
   Future<void> signOut() {
     return _auth.signOut();
   }
+
 }

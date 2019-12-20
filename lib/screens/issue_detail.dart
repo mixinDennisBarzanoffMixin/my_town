@@ -4,14 +4,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 
-class IssueDetailScreen extends StatelessWidget {
+class IssueDetailArguments {
   final IssueFetched issue;
   final Uint8List detailImageBytes;
 
-  IssueDetailScreen(this.issue, this.detailImageBytes);
+  IssueDetailArguments(this.issue, this.detailImageBytes);
+}
 
+class IssueDetailScreen extends StatelessWidget {
+  
   @override
   Widget build(BuildContext context) {
+    final IssueDetailArguments args = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Issue Details"),
@@ -22,21 +27,21 @@ class IssueDetailScreen extends StatelessWidget {
           Container(
             height: 300,
             child: Hero(
-              tag: issue.imageUrl, // the tag for the animations much match
-              child: issue.hasThumbnail
+              tag: args.issue.imageUrl, // the tag for the animations much match
+              child: args.issue.hasThumbnail
                   ? FadeInImage.memoryNetwork(
-                      placeholder: detailImageBytes,
-                      image: issue.imageUrl,
+                      placeholder: args.detailImageBytes,
+                      image: args.issue.imageUrl,
                       fit: BoxFit.cover, // cover the parent
                       fadeInDuration: Duration(milliseconds: 100),
                       fadeOutDuration: Duration(milliseconds: 100),
                     )
-                  : Image.memory(detailImageBytes), // no animation otherwise
+                  : Image.memory(args.detailImageBytes), // no animation otherwise
             ),
           ),
           Padding(
             padding: EdgeInsets.all(20.0),
-            child: Text(issue.details),
+            child: Text(args.issue.details),
           ),
         ],
       ),

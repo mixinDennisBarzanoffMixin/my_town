@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 const double _kFrontHeadingHeight = 32.0; // front layer beveled rectangle
 const double _kFrontClosedHeight =
-    160.0 + _kFrontHeadingHeight; // 92.0; // front layer height when closed
+    200.0 + _kFrontHeadingHeight; // 92.0; // front layer height when closed
 const double _kBackAppBarHeight = 56.0; // back layer (options) appbar height
 
 // The size of the front layer heading's left and right beveled corners.
@@ -23,65 +23,6 @@ final Animatable<BorderRadius> _kFrontHeadingBevelRadius = BorderRadiusTween(
     topRight: Radius.circular(_kFrontHeadingHeight),
   ),
 );
-
-class _TappableWhileStatusIs extends StatefulWidget {
-  const _TappableWhileStatusIs(
-    this.status, {
-    Key key,
-    this.controller,
-    this.child,
-  }) : super(key: key);
-
-  final AnimationController controller;
-  final AnimationStatus status;
-  final Widget child;
-
-  @override
-  _TappableWhileStatusIsState createState() => _TappableWhileStatusIsState();
-}
-
-class _TappableWhileStatusIsState extends State<_TappableWhileStatusIs> {
-  bool _active;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addStatusListener(_handleStatusChange);
-    _active = widget.controller.status == widget.status;
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeStatusListener(_handleStatusChange);
-    super.dispose();
-  }
-
-  void _handleStatusChange(AnimationStatus status) {
-    final bool value = widget.controller.status == widget.status;
-    if (_active != value) {
-      setState(() {
-        _active = value;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget child = AbsorbPointer(
-      absorbing: !_active,
-      child: widget.child,
-    );
-    // todo reassigning a different child causes a destruction of the old one -> bad
-    // if (!_active) {
-    //   child = FocusScope(
-    //     canRequestFocus: false,
-    //     debugLabel: '$_TappableWhileStatusIs',
-    //     child: child,
-    //   );
-    // }
-    return child;
-  }
-}
 
 class _CrossFadeTransition extends AnimatedWidget {
   const _CrossFadeTransition({
@@ -134,56 +75,6 @@ class _CrossFadeTransition extends AnimatedWidget {
   }
 }
 
-class _BackAppBar extends StatelessWidget {
-  const _BackAppBar({
-    Key key,
-    this.leading = const SizedBox(width: 56.0),
-    @required this.title,
-    this.trailing,
-  })  : assert(leading != null),
-        assert(title != null),
-        super(key: key);
-
-  final Widget leading;
-  final Widget title;
-  final Widget trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return IconTheme.merge(
-      data: theme.primaryIconTheme,
-      child: DefaultTextStyle(
-        style: theme.primaryTextTheme.title,
-        child: Container(
-          decoration: BoxDecoration(color: Colors.blue),
-          child: SizedBox(
-            height: _kBackAppBarHeight,
-            child: Row(
-              children: <Widget>[
-                Container(
-                  alignment: Alignment.center,
-                  width: 56.0,
-                  child: leading,
-                ),
-                Expanded(
-                  child: title,
-                ),
-                if (trailing != null)
-                  Container(
-                    alignment: Alignment.center,
-                    width: 56.0,
-                    child: trailing,
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class Backdrop extends StatefulWidget {
   const Backdrop({
     this.frontAction,
@@ -192,6 +83,7 @@ class Backdrop extends StatefulWidget {
     this.frontLayer,
     this.backTitle,
     this.backLayer,
+    this.drawer,
   });
 
   final Widget frontAction;
@@ -200,6 +92,7 @@ class Backdrop extends StatefulWidget {
   final Widget frontHeading;
   final Widget backTitle;
   final Widget backLayer;
+  final Widget drawer;
 
   @override
   _BackdropState createState() => _BackdropState();
@@ -271,50 +164,50 @@ class _BackdropState extends State<Backdrop>
         _controller.drive(RelativeRectTween(
       begin: RelativeRect.fromLTRB(
           0.0, constraints.biggest.height - _kFrontClosedHeight, 0.0, 0.0),
-      end: const RelativeRect.fromLTRB(0.0, _kBackAppBarHeight, 0.0, 0.0),
+      end: const RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
     ));
-    return Material(
-      // necessary for the rendering of the widget
-      child: Stack(
-        key: _backdropKey,
+    // print(_controller.status);
+    return Scaffold(
+      key: _backdropKey,
+      appBar: AppBar(
+        leading: widget.frontAction,
+        title: _CrossFadeTransition(
+          progress: _controller,
+          alignment: AlignmentDirectional.centerStart,
+          child0: Semantics(namesRoute: true, child: widget.frontTitle),
+          child1: Semantics(namesRoute: true, child: widget.backTitle),
+        ),
+        actions: <Widget>[
+          IconButton(
+            onPressed: _toggleFrontLayer,
+            tooltip: 'Toggle options page',
+            icon: AnimatedIcon(
+              icon: AnimatedIcons.menu_close,
+              progress: _controller,
+            ),
+          ),
+        ],
+      ),
+      // Back layer
+      drawer: widget.drawer,
+      body: Stack(
         children: <Widget>[
-          // Back layer
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              _BackAppBar(
-                leading: widget.frontAction,
-                title: _CrossFadeTransition(
-                  progress: _controller,
-                  alignment: AlignmentDirectional.centerStart,
-                  child0: Semantics(namesRoute: true, child: widget.frontTitle),
-                  child1: Semantics(namesRoute: true, child: widget.backTitle),
-                ),
-                trailing: IconButton(
-                  onPressed: _toggleFrontLayer,
-                  tooltip: 'Toggle options page',
-                  icon: AnimatedIcon(
-                    icon: AnimatedIcons.close_menu,
-                    progress: _controller,
-                  ),
-                ),
-              ),
               Expanded(
                 child: _TappableWhileStatusIs(
                   AnimationStatus.dismissed,
                   controller: _controller,
-                  child: Visibility(
+                  child: _VisibleWhileStatusIs(
+                    (status) => status != AnimationStatus.completed,
+                    controller: _controller,
                     child: widget.backLayer,
-                    visible: _controller.status != AnimationStatus.completed,
-                    maintainState: true,
-                    maintainSize: true, // make invisible (still)
-                    maintainAnimation: true,
                   ),
                 ),
               ),
             ],
           ),
-          // Front layer
           PositionedTransition(
             rect: frontRelativeRect,
             child: AnimatedBuilder(
@@ -361,11 +254,125 @@ class _BackdropState extends State<Backdrop>
             ),
         ],
       ),
+      // Front layer
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: _buildStack);
+  }
+}
+
+class _TappableWhileStatusIs extends StatefulWidget {
+  const _TappableWhileStatusIs(
+    this.status, {
+    Key key,
+    this.controller,
+    this.child,
+  }) : super(key: key);
+
+  final AnimationController controller;
+  final AnimationStatus status;
+  final Widget child;
+
+  @override
+  _TappableWhileStatusIsState createState() => _TappableWhileStatusIsState();
+}
+
+class _TappableWhileStatusIsState extends State<_TappableWhileStatusIs> {
+  bool _active;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addStatusListener(_handleStatusChange);
+    _active = widget.controller.status == widget.status;
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeStatusListener(_handleStatusChange);
+    super.dispose();
+  }
+
+  void _handleStatusChange(AnimationStatus status) {
+    final bool value = widget.controller.status == widget.status;
+    if (_active != value) {
+      setState(() {
+        _active = value;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child = AbsorbPointer(
+      absorbing: !_active,
+      child: widget.child,
+    );
+    // todo reassigning a different child causes a destruction of the old one -> bad
+    // if (!_active) {
+    //   child = FocusScope(
+    //     canRequestFocus: false,
+    //     debugLabel: '$_TappableWhileStatusIs',
+    //     child: child,
+    //   );
+    // }
+    return child;
+  }
+}
+
+class _VisibleWhileStatusIs extends StatefulWidget {
+  const _VisibleWhileStatusIs(
+    this.visible, {
+    Key key,
+    this.controller,
+    this.child,
+  }) : super(key: key);
+
+  final AnimationController controller;
+  final bool Function(AnimationStatus) visible;
+  final Widget child;
+
+  @override
+  _VisibleWhileStatusIsState createState() => _VisibleWhileStatusIsState();
+}
+
+class _VisibleWhileStatusIsState extends State<_VisibleWhileStatusIs> {
+  bool _visible;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addStatusListener(_handleStatusChange);
+    _visible = widget.visible(widget.controller.status);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeStatusListener(_handleStatusChange);
+    super.dispose();
+  }
+
+  void _handleStatusChange(AnimationStatus status) {
+    final bool newVisibility = widget.visible(widget.controller.status);
+    print('status change: ${newVisibility ? 'visible' : 'invisible'}');
+    if (_visible != newVisibility) {
+      setState(() {
+        _visible = newVisibility;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Visibility(
+      child: widget.child,
+      visible: _visible,
+      maintainState: true,
+      maintainSize: true, // make invisible (still)
+      maintainAnimation: true,
+    );
   }
 }

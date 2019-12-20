@@ -1,25 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:my_town/screens/issues.dart';
-import 'package:my_town/screens/login.dart';
-import 'package:my_town/screens/report_issue.dart';
-
+import 'package:my_town/screens/screens.dart';
+import 'package:my_town/services/auth.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  debugPaintSizeEnabled = true;
+  // debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: {
-          '/': (context) => LoginScreen(),
-          '/issues': (context) => IssuesScreen(),
-          // 'issue_detail': (context) => IssueDetail
+    return MultiProvider(
+      providers: [
+        StreamProvider<FirebaseUser>.value(value: AuthService().user)
+      ],
+      child: MaterialApp(
+        routes: {
+          '/': (context) => IssuesScreen(),
+          '/login': (context) => LoginScreen(),
+          '/issue_detail': (context) => IssueDetailScreen(),
           '/report_issue': (context) => ReportIssueScreen(),
         },
+      ),
     );
   }
 }
