@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:my_town/shared/user.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -8,16 +10,25 @@ class AuthService {
   final Firestore _db = Firestore.instance;
 
   /// singleton
-  AuthService._internal();
-  static AuthService instance = AuthService._internal();
+  Stream<User> user$;
+
+  AuthService._internal() {
+    print('initialised authservce');
+    this.user$ = Observable(_auth.onAuthStateChanged).switchMap((firebaseUser) {
+      if (firebaseUser != null) {
+        return _db.collection('users').document(firebaseUser.uid).snapshots();
+      } else {
+        return Stream.value(null);
+      }
+    }).map((doc) => doc != null ? User.fromDocument(doc) : null);
+  }
+  static AuthService _instance = AuthService._internal();
 
   factory AuthService() {
-    return instance;
+    return _instance;
   }
 
   Future<FirebaseUser> get getUser => _auth.currentUser();
-
-  Stream<FirebaseUser> get user => _auth.onAuthStateChanged;
 
   Future<FirebaseUser> googleSignIn() async {
     try {
@@ -30,11 +41,19 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-      var authResult = await _auth.signInWithCredential(credential); // todo use link with credential instead
+      var authResult = await _auth.signInWithCredential(
+          credential); // todo use link with credential instead
       FirebaseUser user = authResult.user;
-      
-      updateUserData(user);
 
+      // updateUserData(user);
+
+      // tried listening to the real user, but too hard
+      updateUserData(user);
+      // var userRef = ;
+      // this._userSubject.add(await userRef.get().then((snap) => User.fromDocument(snap)));
+      // // this._currentUser = userRef.get().then((snap) => User.fromDocument(snap));
+      // return userRef.get().then((snap) => User.fromDocument(snap));
+      // return user;
       return user;
     } catch (error) {
       print(error);
@@ -45,22 +64,23 @@ class AuthService {
   Future<FirebaseUser> anonLogin() async {
     var authResult = await _auth.signInAnonymously();
     FirebaseUser user = authResult.user;
-    updateUserData(user);
+    // updateUserData(user);
     return user;
   }
 
   Future<void> updateUserData(FirebaseUser user) {
-    // DocumentReference reportRef = _db.collection('reports').document(user.uid);
+    DocumentReference userRef = _db.collection('users').document(user.uid);
 
-    // return reportRef.setData({
-    //   'uid': user.uid,
-    //   'lastActivity': DateTime.now()
-    // }, merge: true);
-
+    return userRef.setData({
+      // update the user data in case it has changed
+      'uid': user.uid,
+      'photoUrl': user.photoUrl,
+      'displayName': user.displayName,
+      'providerId': user.providerId,
+    }, merge: true);
   }
 
   Future<void> signOut() {
     return _auth.signOut();
   }
-
 }

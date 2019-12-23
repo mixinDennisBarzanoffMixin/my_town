@@ -24,9 +24,9 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(30),
-        decoration: BoxDecoration(),
+      body: SizedBox(
+        width: double.infinity,
+        // padding: EdgeInsets.all(30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -44,7 +44,7 @@ class LoginScreenState extends State<LoginScreen> {
               onPressed: () async {
                 var user = await auth.googleSignIn();
                 if (user != null) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/issues', (route) => route == '/');
+                  Navigator.pushReplacementNamed(context, '/issues');
                 }
               },
             )

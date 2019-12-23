@@ -37,7 +37,10 @@ dependencies:
 
   camera: ^0.5.7 
   image_picker: ^0.6.2+3
-  
+
+  flutter_bloc: ^2.1.1  # bloc pattern widgets
+  bloc: ^2.0.0 # bloc pattern
+  equatable: ^1.0.1
     # some devices have a messed up orientaion
   # flutter_exif_rotation: ^0.2.7 
   # flutter_image_compress: ^0.6.3

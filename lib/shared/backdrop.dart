@@ -113,7 +113,7 @@ class _BackdropState extends State<Backdrop>
     super.initState();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
-      value: 0,
+      value: 1.0,
       vsync: this,
     );
     _frontOpacity = _controller.drive(_frontOpacityTween);
@@ -182,14 +182,14 @@ class _BackdropState extends State<Backdrop>
             onPressed: _toggleFrontLayer,
             tooltip: 'Toggle options page',
             icon: AnimatedIcon(
-              icon: AnimatedIcons.menu_close,
+              icon: AnimatedIcons.close_menu,
               progress: _controller,
             ),
           ),
         ],
       ),
       // Back layer
-      drawer: widget.drawer,
+      drawer: widget.drawer, //todo
       body: Stack(
         children: <Widget>[
           Column(
@@ -357,7 +357,7 @@ class _VisibleWhileStatusIsState extends State<_VisibleWhileStatusIs> {
 
   void _handleStatusChange(AnimationStatus status) {
     final bool newVisibility = widget.visible(widget.controller.status);
-    print('status change: ${newVisibility ? 'visible' : 'invisible'}');
+    // print('status change: ${newVisibility ? 'visible' : 'invisible'}');
     if (_visible != newVisibility) {
       setState(() {
         _visible = newVisibility;

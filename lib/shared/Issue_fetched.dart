@@ -1,17 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 
-class IssueFetched {
-  String id;
-  String details;
-  String imageUrl;
-  String thumbnailUrl;
-  double distance;
-  GeoPoint geopoint;
+class IssueFetched extends Equatable {
+  final String id;
+  final String details;
+  final String imageUrl;
+  final String thumbnailUrl;
+  final double distance;
+  final GeoPoint geopoint;
 
-  IssueFetched(this.id, this.details, this.imageUrl, this.thumbnailUrl,
+  const IssueFetched(this.id, this.details, this.imageUrl, this.thumbnailUrl,
       this.distance, this.geopoint);
 
- IssueFetched.fromGeoFireDocument(DocumentSnapshot document)
+  IssueFetched.fromGeoFireDocument(DocumentSnapshot document)
      : this(
          document.documentID,
          document.data['details'],
@@ -22,4 +23,16 @@ class IssueFetched {
        );
 
   get hasThumbnail => this.thumbnailUrl != null;
+
+  @override
+  String toString() {
+    return """
+      thumbnail: $thumbnailUrl,
+      imageUrl: $imageUrl,
+      details: $details,
+    """;
+  }
+
+  @override
+  List<Object> get props => [id];
 }
