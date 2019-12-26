@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_town/screens/issue_detail.dart';
+import 'package:my_town/screens/issues/issue-detail/issue_detail.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/screens/issues/filter_results_widget.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
@@ -44,6 +43,7 @@ class IssuesScreenState extends State<IssuesScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: BlocBuilder<IssuesBloc, IssuesState>(
             builder: (context, state) {
+              print(state);
               return ListView(
                 children: [
                   if (state is IssuesLoadingState)
@@ -85,16 +85,21 @@ class _IssueCardState extends State<IssueCard> {
   Future<Uint8List> imageBytesFuture;
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
-    imageBytesFuture =
-        networkImageToByte(widget.issue.thumbnailUrl ?? widget.issue.imageUrl);
+    initializeImageBytes();
   }
+
   @override
   void didUpdateWidget(IssueCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.issue != widget.issue)
-      imageBytesFuture =
+    if (oldWidget.issue != widget.issue) {
+      initializeImageBytes();
+    }
+  }
+
+  void initializeImageBytes() {
+    imageBytesFuture =
         networkImageToByte(widget.issue.thumbnailUrl ?? widget.issue.imageUrl);
   }
 
@@ -137,7 +142,7 @@ class _IssueCardState extends State<IssueCard> {
                 imageBytes.hasData
                     ? GestureDetector(
                         child: Hero(
-                          tag: widget.issue.imageUrl,
+                          tag: widget.issue.id,
                           child: Image.memory(imageBytes.data),
                         ),
                         onTap: () => Navigator.pushNamed(

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_town/shared/location.dart';
 
 class IssueFetched extends Equatable {
   final String id;
@@ -7,10 +8,12 @@ class IssueFetched extends Equatable {
   final String imageUrl;
   final String thumbnailUrl;
   final double distance;
-  final GeoPoint geopoint;
+  final Location location;
+  final int upvotes;
+  final int downvotes;
 
   const IssueFetched(this.id, this.details, this.imageUrl, this.thumbnailUrl,
-      this.distance, this.geopoint);
+      this.distance, this.location, this.upvotes, this.downvotes);
 
   IssueFetched.fromGeoFireDocument(DocumentSnapshot document)
      : this(
@@ -19,7 +22,9 @@ class IssueFetched extends Equatable {
          document.data['imageUrl'],
          document.data['thumbnailUrl'],
          document.data['distance'],
-         document.data['position']['geopoint'],
+         Location.fromGeoPoint(document.data['position']['geopoint']),
+         document.data['upvotes'],
+         document.data['downvotes'],
        );
 
   get hasThumbnail => this.thumbnailUrl != null;

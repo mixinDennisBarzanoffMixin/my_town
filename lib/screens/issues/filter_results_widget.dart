@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
+import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 
@@ -45,11 +46,6 @@ class _FilterResultsWidgetState extends State<FilterResultsWidget> {
   Geolocator locator = Geolocator();
 
   @override
-  void didUpdateWidget(FilterResultsWidget oldWidget) {
-    
-    super.didUpdateWidget(oldWidget);
-  }
-  @override
   Widget build(BuildContext context) {
     return Column(
       // crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,21 +72,20 @@ class _FilterResultsWidgetState extends State<FilterResultsWidget> {
                   Navigator.pushNamed(
                     context,
                     '/issues_map',
-                    arguments: currentPosition.toLatLng(),
+                    arguments: Location.fromPosition(currentPosition),
                   );
                   break;
                 case IssueLocations.CurrentLocation:
                   var currentPosition = await locator.getCurrentPosition();
-                  print(currentPosition);
                   BlocProvider.of<IssuesBloc>(context)
-                      .add(GetIssuesAtLocationEvent(currentPosition));
+                      .add(GetIssuesAtLocationEvent(Location.fromPosition(currentPosition)));
                   break;
                 case IssueLocations.HomeLocation:
                   var userHomeLocation =
                       Provider.of<User>(context).homeLocation;
 
                   BlocProvider.of<IssuesBloc>(context).add(
-                      GetIssuesAtLocationEvent(userHomeLocation.toPosition()));
+                      GetIssuesAtLocationEvent(userHomeLocation));
                   break;
               }
               print(newValue.text);
@@ -106,11 +101,5 @@ class _FilterResultsWidgetState extends State<FilterResultsWidget> {
         ),
       ],
     );
-  }
-}
-
-extension on Position {
-  toLatLng() {
-    return LatLng(this.latitude, this.longitude);
   }
 }

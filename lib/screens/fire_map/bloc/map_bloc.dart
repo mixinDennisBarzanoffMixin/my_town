@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:my_town/shared/location.dart';
 import 'package:rxdart/rxdart.dart';
 import './bloc.dart';
 
@@ -51,10 +52,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     print(radius);
     var location = mapScreenData.position.target;
 
-    print('New map position update: ' + location.toString());
-
-    // Make a reference to firestore
-
-    return RadiusAndLocation(radius, location);
+    // print('New map position update: ' + location.toString());
+    return RadiusAndLocation(radius, Location.fromLatLng(location));
   }
 }

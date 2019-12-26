@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1577402349224" clover="3.2.0">
+  <project timestamp="1577402349224" name="All files">
+    <metrics statements="27" coveredstatements="27" conditionals="44" coveredconditionals="37" methods="1" coveredmethods="1" elements="72" coveredelements="65" complexity="0" loc="27" ncloc="27" packages="1" files="1" classes="1"/>
+    <file name="votes.ts" path="/home/denisbarzanov2002/FlutterProjects/my_town/functions/src/votes.ts">
+      <metrics statements="27" coveredstatements="27" conditionals="44" coveredconditionals="37" methods="1" coveredmethods="1"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="6" count="1" type="stmt"/>
+      <line num="7" count="6" type="stmt"/>
+      <line num="8" count="6" type="stmt"/>
+      <line num="9" count="6" type="cond" truecount="3" falsecount="1"/>
+      <line num="11" count="6" type="cond" truecount="3" falsecount="1"/>
+      <line num="12" count="6" type="cond" truecount="3" falsecount="1"/>
+      <line num="14" count="6" type="cond" truecount="8" falsecount="2"/>
+      <line num="15" count="6" type="cond" truecount="8" falsecount="2"/>
+      <line num="17" count="6" type="stmt"/>
+      <line num="19" count="6" type="stmt"/>
+      <line num="20" count="6" type="stmt"/>
+      <line num="22" count="6" type="stmt"/>
+      <line num="24" count="6" type="stmt"/>
+      <line num="25" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="26" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="27" count="1" type="stmt"/>
+      <line num="29" count="1" type="stmt"/>
+      <line num="31" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="32" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="33" count="1" type="stmt"/>
+      <line num="35" count="1" type="stmt"/>
+      <line num="38" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="39" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="42" count="6" type="stmt"/>
+    </file>
+  </project>
+</coverage>

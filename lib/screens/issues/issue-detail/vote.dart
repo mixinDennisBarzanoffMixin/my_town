@@ -1,0 +1,1 @@
+enum UserVote { Upvoted, Downvoted, Unvoted }

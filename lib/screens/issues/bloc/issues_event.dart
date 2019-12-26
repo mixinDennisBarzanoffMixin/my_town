@@ -1,16 +1,16 @@
-import 'package:geolocator/geolocator.dart';
 import 'package:meta/meta.dart';
+import 'package:my_town/shared/location.dart';
 
 @immutable
 abstract class IssuesEvent {}
 
 class GetIssuesAtLocationEvent extends IssuesEvent {
-  final Position location;
+  final Location location;
 
   GetIssuesAtLocationEvent(this.location);
 }
 
 class GetIssuesAtLocationWithRadiusEvent extends GetIssuesAtLocationEvent {
   final double radius;
-  GetIssuesAtLocationWithRadiusEvent(this.radius, Position location) : super(location);
+  GetIssuesAtLocationWithRadiusEvent(this.radius, Location location) : super(location);
 }

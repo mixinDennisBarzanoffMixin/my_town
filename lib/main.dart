@@ -10,7 +10,7 @@ import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  // debugPaintSizeEnabled = true;
+  debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 

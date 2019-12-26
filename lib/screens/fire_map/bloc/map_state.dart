@@ -1,5 +1,5 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
+import 'package:my_town/shared/location.dart';
 
 @immutable
 abstract class MapState {}
@@ -15,7 +15,7 @@ class RadiusAndLocationReadyMapState extends MapState {
 
 class RadiusAndLocation {
   final double radius;
-  final LatLng location;
+  final Location location;
 
   const RadiusAndLocation(this.radius, this.location);
 }
