@@ -7,10 +7,12 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
+const double _kDividerHeadingHeight = 1.0; // front layer divider header height;
 const double _kFrontHeadingHeight = 32.0; // front layer beveled rectangle
+const double _kFrontContainerHeight = 50.0;
 const double _kFrontClosedHeight =
-    200.0 + _kFrontHeadingHeight; // 92.0; // front layer height when closed
-const double _kBackAppBarHeight = 56.0; // back layer (options) appbar height
+    _kFrontContainerHeight + _kDividerHeadingHeight; // front layer height when closed
+// const double _kBackAppBarHeight = 56.0; // back layer (options) appbar height
 
 // The size of the front layer heading's left and right beveled corners.
 final Animatable<BorderRadius> _kFrontHeadingBevelRadius = BorderRadiusTween(
@@ -79,7 +81,7 @@ class Backdrop extends StatefulWidget {
   const Backdrop({
     this.frontAction,
     this.frontTitle,
-    this.frontHeading,
+    this.frontHeadingText,
     this.frontLayer,
     this.backTitle,
     this.backLayer,
@@ -89,7 +91,7 @@ class Backdrop extends StatefulWidget {
   final Widget frontAction;
   final Widget frontTitle;
   final Widget frontLayer;
-  final Widget frontHeading;
+  final String frontHeadingText;
   final Widget backTitle;
   final Widget backLayer;
   final Widget drawer;
@@ -105,7 +107,7 @@ class _BackdropState extends State<Backdrop>
   Animation<double> _frontOpacity;
 
   static final Animatable<double> _frontOpacityTween =
-      Tween<double>(begin: 0.8, end: 1.0).chain(
+      Tween<double>(begin: 0.4, end: 1.0).chain(
           CurveTween(curve: const Interval(0.0, 0.4, curve: Curves.easeInOut)));
 
   @override
@@ -130,8 +132,7 @@ class _BackdropState extends State<Backdrop>
     // not be called at build time.
     final RenderBox renderBox =
         _backdropKey.currentContext.findRenderObject() as RenderBox;
-    return math.max(
-        0.0, renderBox.size.height - _kBackAppBarHeight - _kFrontClosedHeight);
+    return math.max(0.0, renderBox.size.height - _kFrontClosedHeight);
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -166,6 +167,109 @@ class _BackdropState extends State<Backdrop>
           0.0, constraints.biggest.height - _kFrontClosedHeight, 0.0, 0.0),
       end: const RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
     ));
+    return Stack(
+      children: <Widget>[
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+              child: _TappableWhileStatusIs(
+                AnimationStatus.dismissed,
+                controller: _controller,
+                child: _VisibleWhileStatusIs(
+                  (status) => status != AnimationStatus.completed,
+                  controller: _controller,
+                  child: widget.backLayer,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        PositionedTransition(
+          rect: frontRelativeRect,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (BuildContext context, Widget child) {
+              return PhysicalShape(
+                elevation: 12.0,
+                color: Theme.of(context).canvasColor,
+                clipper: ShapeBorderClipper(
+                  shape: BeveledRectangleBorder(
+                    borderRadius:
+                        _kFrontHeadingBevelRadius.transform(_controller.value),
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: child,
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                ExcludeSemantics(
+                  child: Container(
+                    alignment: Alignment.topCenter,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _toggleFrontLayer,
+                      onVerticalDragUpdate: _handleDragUpdate,
+                      onVerticalDragEnd: _handleDragEnd,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        height: _kFrontContainerHeight,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              // height: _kFrontHeadingHeight,
+                              child: Text(
+                                widget.frontHeadingText,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: _toggleFrontLayer,
+                              tooltip: 'Toggle options page',
+                              icon: AnimatedIcon(
+                                icon: AnimatedIcons.close_menu,
+                                progress: _controller,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Divider(
+                  height: _kDividerHeadingHeight,
+                ),
+                Expanded(
+                  child: _TappableWhileStatusIs(
+                    AnimationStatus.completed,
+                    controller: _controller,
+                    child: FadeTransition(
+                      opacity: _frontOpacity,
+                      child: widget.frontLayer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // The front "heading" is a (typically transparent) widget that's stacked on
+        // top of, and at the top of, the front layer. It adds support for dragging
+        // the front layer up and down and for opening and closing the front layer
+        // with a tap. It may obscure part of the front layer's topmost child.
+      ],
+      // Front layer
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // print(_controller.status);
     return Scaffold(
       key: _backdropKey,
@@ -177,90 +281,11 @@ class _BackdropState extends State<Backdrop>
           child0: Semantics(namesRoute: true, child: widget.frontTitle),
           child1: Semantics(namesRoute: true, child: widget.backTitle),
         ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: _toggleFrontLayer,
-            tooltip: 'Toggle options page',
-            icon: AnimatedIcon(
-              icon: AnimatedIcons.close_menu,
-              progress: _controller,
-            ),
-          ),
-        ],
       ),
       // Back layer
       drawer: widget.drawer, //todo
-      body: Stack(
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: _TappableWhileStatusIs(
-                  AnimationStatus.dismissed,
-                  controller: _controller,
-                  child: _VisibleWhileStatusIs(
-                    (status) => status != AnimationStatus.completed,
-                    controller: _controller,
-                    child: widget.backLayer,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          PositionedTransition(
-            rect: frontRelativeRect,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (BuildContext context, Widget child) {
-                return PhysicalShape(
-                  elevation: 12.0,
-                  color: Theme.of(context).canvasColor,
-                  clipper: ShapeBorderClipper(
-                    shape: BeveledRectangleBorder(
-                      borderRadius: _kFrontHeadingBevelRadius
-                          .transform(_controller.value),
-                    ),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: child,
-                );
-              },
-              child: FadeTransition(
-                opacity: _frontOpacity,
-                child: widget.frontLayer,
-              ),
-            ),
-          ),
-          // The front "heading" is a (typically transparent) widget that's stacked on
-          // top of, and at the top of, the front layer. It adds support for dragging
-          // the front layer up and down and for opening and closing the front layer
-          // with a tap. It may obscure part of the front layer's topmost child.
-          if (widget.frontHeading != null)
-            PositionedTransition(
-              rect: frontRelativeRect,
-              child: ExcludeSemantics(
-                child: Container(
-                  alignment: Alignment.topLeft,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _toggleFrontLayer,
-                    onVerticalDragUpdate: _handleDragUpdate,
-                    onVerticalDragEnd: _handleDragEnd,
-                    child: widget.frontHeading,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-      // Front layer
+      body: LayoutBuilder(builder: _buildStack),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: _buildStack);
   }
 }
 

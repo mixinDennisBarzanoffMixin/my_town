@@ -33,18 +33,18 @@ class IssuesScreenState extends State<IssuesScreen> {
 
   @override
   build(context) {
-    return Backdrop(
-      frontTitle: Text('Issues in your area'),
-      frontLayer: SizedBox(
-        // todo use less widgets
-        height: 200.0,
-        width: double.infinity, // stretch to the parent width
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: BlocBuilder<IssuesBloc, IssuesState>(
-            builder: (context, state) {
-              print(state);
-              return ListView(
+    return BlocBuilder<IssuesBloc, IssuesState>(
+      builder: (context, state) {
+        print(state);
+        return Backdrop(
+          frontTitle: Text('Issues in your area'),
+          frontLayer: SizedBox(
+            // todo use less widgets
+            height: 200.0,
+            width: double.infinity, // stretch to the parent width
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: ListView(
                 children: [
                   if (state is IssuesLoadingState)
                     AppProgressIndicator()
@@ -52,19 +52,15 @@ class IssuesScreenState extends State<IssuesScreen> {
                     for (var issue in state.issues) IssueCard(issue)
                 ],
                 scrollDirection: Axis.vertical,
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ),
-      frontHeading: Container(
-        height: 50,
-        alignment: Alignment.center,
-        child: Text('Issue images'),
-      ),
-      backTitle: Text('Options'),
-      backLayer: FilterResultsWidget(),
-      drawer: AppDrawer(),
+          frontHeadingText: state is IssuesLoadedState ? '${state.issues.length} issues': 'Issues',
+          backTitle: Text('Options'),
+          backLayer: FilterResultsWidget(),
+          drawer: AppDrawer(),
+        );
+      },
     );
   }
 }
