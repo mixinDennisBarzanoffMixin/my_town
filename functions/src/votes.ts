@@ -1,6 +1,5 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import FirebaseFirestore from '@google-cloud/firestore'
 
 const db = admin.firestore();
 
@@ -65,7 +64,7 @@ async function deleteUserVotes( ref: (ref: admin.firestore.CollectionReference) 
     const batch = db.batch()
     const querySnapshot = await ref(db.collection('user-votes')).get()
     querySnapshot.forEach((snap) => batch.delete(snap.ref)) // there may be multiple issue votes - it's many-to-many
-    batch.commit()
+    await batch.commit()
 }
 
 export const removeUserVotesAfterDeletingIssue = functions.firestore.document('issues/{issueId}').onDelete((snap, context) => {
