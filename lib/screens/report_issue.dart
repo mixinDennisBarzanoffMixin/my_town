@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_town/shared/progress_indicator.dart';
 
 class Issue {
   String details;
@@ -221,6 +222,6 @@ class _UploaderState extends State<Uploader> {
           );
         },
       );
-    }
+    } else return AppProgressIndicator();
   }
 }

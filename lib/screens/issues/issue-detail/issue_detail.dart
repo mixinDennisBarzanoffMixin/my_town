@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_town/screens/issues/issue-detail/vote.dart';
 import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/services/votes_db.dart';
