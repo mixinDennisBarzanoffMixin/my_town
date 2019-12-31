@@ -62,7 +62,7 @@ export const votesAggregate = functions.firestore.document('issue-votes/{issueVo
 
 async function deleteUserVotes( ref: (ref: admin.firestore.CollectionReference) => FirebaseFirestore.Query ) {
     const batch = db.batch()
-    const querySnapshot = await ref(db.collection('user-votes')).get()
+    const querySnapshot = await ref(db.collection('issue-votes')).get()
     querySnapshot.forEach((snap) => batch.delete(snap.ref)) // there may be multiple issue votes - it's many-to-many
     await batch.commit()
 }

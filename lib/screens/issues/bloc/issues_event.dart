@@ -10,7 +10,8 @@ class GetIssuesAtLocationEvent extends IssuesEvent {
   GetIssuesAtLocationEvent(this.location);
 }
 
-class GetIssuesAtLocationWithRadiusEvent extends GetIssuesAtLocationEvent {
+class GetIssuesAtLocationWithRadiusEvent extends IssuesEvent {
   final double radius;
-  GetIssuesAtLocationWithRadiusEvent(this.radius, Location location) : super(location);
+  final Location location;
+  GetIssuesAtLocationWithRadiusEvent(this.radius, this.location);
 }

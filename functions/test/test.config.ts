@@ -1,12 +1,12 @@
 import functions from 'firebase-functions-test'
 import * as uninitializedAdmin from 'firebase-admin'
 // import serviceAccount from './service-account.json'
-const serviceAccount = require(__dirname + '/../service-account.json')
+const serviceAccount = require(__dirname + '/./service-account.json')
 
 const conf = {
-  databaseURL: "https://my-town-ba556.firebaseio.com",
-  projectId: "my-town-ba556",
-  storageBucket: "my-town-ba556.appspot.com",
+  databaseURL: "https://my-town-test-40433.firebaseio.com",
+  projectId: "my-town-test-40433",
+  storageBucket: "my-town-test-40433.appspot.com",
 }
 
 const admin = uninitializedAdmin.initializeApp({
@@ -18,7 +18,7 @@ const admin = uninitializedAdmin.initializeApp({
 // Online Testing
 const testEnv = functions({
   ...conf
-}, __dirname + '/../service-account.json')
+}, __dirname + '/./service-account.json')
 
 // Provide 3rd party API keys
 testEnv.mockConfig({});

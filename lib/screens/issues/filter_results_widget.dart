@@ -81,7 +81,7 @@ class _FilterResultsWidgetState extends State<FilterResultsWidget> {
                   break;
                 case IssueLocations.HomeLocation:
                   var userHomeLocation =
-                      Provider.of<User>(context).homeLocation;
+                      Provider.of<User>(context, listen: false).homeLocation;
 
                   BlocProvider.of<IssuesBloc>(context).add(
                       GetIssuesAtLocationEvent(userHomeLocation));

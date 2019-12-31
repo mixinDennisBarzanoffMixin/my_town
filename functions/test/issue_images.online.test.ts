@@ -15,13 +15,10 @@ describe('Tests the issue image cloud functions', () => {
 
     const thumbnailFilename = `issues/thumbnails/${issueId}_180x180.jpg`
     const imageFilename = `issues/${issueId}.jpg`
-  
-
 
     beforeEach(async () => {
+        await issueRef.set({}) // Warning: Use a testing project where no cloud functions can interfere
         wrappedAddGeneratedThumbnail = testEnv.wrap(addGeneratedThumbnailToDocument)
-        await issueRef.set({})
-
         await bucket.upload(__dirname + '/assets/test_image.jpg', { destination: thumbnailFilename })
         await bucket.upload(__dirname + '/assets/test_image.jpg', { destination: imageFilename })
     })
@@ -39,16 +36,18 @@ describe('Tests the issue image cloud functions', () => {
     })
 
     test('doesn\'t add a non thumbnail image to issue', async () => {
-         const objectMetadata = testEnv.storage.makeObjectMetadata({ name: imageFilename })
+        let issueDoc = await issueRef.get()
+        expect(issueDoc?.data()?.thumbnailUrl).toBeUndefined()
+        const objectMetadata = testEnv.storage.makeObjectMetadata({ name: imageFilename })
         await wrappedAddGeneratedThumbnail(objectMetadata)
-        const issueDoc = await issueRef.get()
+        issueDoc = await issueRef.get()
         expect(issueDoc?.data()?.thumbnailUrl).toBeUndefined()
     })
 
-    afterEach(() => {
+    afterAll(() => {
         return Promise.all([
             bucket.file(imageFilename).delete(),
-            bucket.file(thumbnailFilename).delete(), 
+            bucket.file(thumbnailFilename).delete(),
             issueRef.delete(),
         ])
     })

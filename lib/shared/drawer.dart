@@ -32,13 +32,14 @@ class AppDrawer extends StatelessWidget {
                   ),
                 ),
                 Text(
-                    user?.displayName != null
-                        ? user.displayName
-                        : 'Helpful citizen',
-                    style: Theme.of(context)
-                        .textTheme
-                        .subhead
-                        .copyWith(color: Colors.white)),
+                  user?.displayName != null
+                      ? user.displayName
+                      : 'Helpful citizen',
+                  style: Theme.of(context)
+                      .textTheme
+                      .subhead
+                      .copyWith(color: Colors.white),
+                ),
               ],
             ),
             decoration: BoxDecoration(
@@ -46,7 +47,8 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ...[
-            if (Provider.of<User>(context) == null) // TODO: extract as a service method
+            if (Provider.of<User>(context) ==
+                null) // TODO: extract as a service method
               ListTile(
                 title: Text('Sign in'),
                 onTap: () {

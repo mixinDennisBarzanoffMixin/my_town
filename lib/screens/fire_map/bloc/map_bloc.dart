@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/shared/location.dart';
 import 'package:rxdart/rxdart.dart';
 import './bloc.dart';
+import 'dart:math';
 
 class MapBloc extends Bloc<MapEvent, MapState> {
   Geolocator _locator = Geolocator();
@@ -23,7 +24,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   @override
   Stream<MapState> transformEvents(events, next) {
     return super.transformEvents(
-      (events as Observable<MapEvent>).debounceTime(
+      Observable<MapEvent>(events).debounceTime(
         Duration(milliseconds: 150),
       ),
       next,
@@ -40,7 +41,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     var screenDiameterInKilometers = screenDiameterInMeters / 1000;
 
-    return screenDiameterInKilometers;
+    return screenDiameterInKilometers / 2; // r = d / 2
   }
 
   Future<RadiusAndLocation> _mapScreenDataToRadiusAndLocation(
@@ -52,7 +53,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     print(radius);
     var location = mapScreenData.position.target;
 
-    // print('New map position update: ' + location.toString());
     return RadiusAndLocation(radius, Location.fromLatLng(location));
   }
 }

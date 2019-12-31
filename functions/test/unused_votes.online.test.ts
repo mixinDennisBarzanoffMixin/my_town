@@ -11,7 +11,7 @@ describe('User votes are deleted when issue or user is deleted', () => {
     const db = admin.firestore()
     const issueRef = db.doc(`issues/${issueId}`)
     const userRef = db.doc(`users/${userId}`)
-    const userVoteRef = db.doc(`user-votes/${issueId}_${userId}`)
+    const userVoteRef = db.doc(`issue-votes/${issueId}_${userId}`)
 
     beforeEach(async () => {
         await issueRef.set({})

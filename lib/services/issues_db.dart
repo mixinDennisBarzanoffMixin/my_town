@@ -2,6 +2,7 @@ import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_town/shared/location.dart';
 import '../shared/Issue_fetched.dart';
+// import 'package:rxdart/rxdart.dart';
 
 class IssuesDatabaseService {
   Geoflutterfire _geo = Geoflutterfire();
@@ -13,6 +14,7 @@ class IssuesDatabaseService {
     GeoFirePoint toPoint(Location position) =>
         _geo.point(latitude: position.latitude, longitude: position.longitude);
 
+    print('getting locations');
     return _geo
         .collection(collectionRef: issuesRef)
         .within(

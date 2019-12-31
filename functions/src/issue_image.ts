@@ -45,8 +45,10 @@ export const addGeneratedThumbnailToDocument = functions.storage
       // const [newMetadata] = await bucket.file(file.name).setMetadata(metadata)
       // console.log(newMetadata)
       const issueRef = db.doc(`issues/${issueId}`)
+      const projectId = admin.instanceId().app.options.projectId
+      console.log(projectId)
       
-      const thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/my-town-ba556.appspot.com/o/${encodeURIComponent(file.name)}?alt=media&token=${token}`
+      const thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/${projectId}.appspot.com/o/${encodeURIComponent(file.name)}?alt=media&token=${token}`
       return await issueRef.set({ thumbnailUrl }, { merge: true })
       // add the thumbnail non-destructively
     }

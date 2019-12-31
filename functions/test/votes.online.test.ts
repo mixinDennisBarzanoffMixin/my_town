@@ -22,11 +22,11 @@ describe('Vote for issue', () => {
     await admin.firestore().doc(`issues/${testIssueId}`).set({ upvotes: 0 })
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: true,
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)
@@ -41,11 +41,11 @@ describe('Vote for issue', () => {
     await admin.firestore().doc(`issues/${testIssueId}`).set({ upvotes: 0 })
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: false
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)
@@ -61,11 +61,11 @@ describe('Vote for issue', () => {
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: true
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: false
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)
@@ -81,11 +81,11 @@ describe('Vote for issue', () => {
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: false
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: true
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)
@@ -101,10 +101,10 @@ describe('Vote for issue', () => {
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: true
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)
@@ -120,10 +120,10 @@ describe('Vote for issue', () => {
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: false
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)
@@ -139,11 +139,11 @@ describe('Vote for issue', () => {
     const before = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: true
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const after = testEnv.firestore.makeDocumentSnapshot({
       issueId: testIssueId,
       upvote: true
-    }, 'user-votes/...')
+    }, 'issue-votes/...')
     const change = testEnv.makeChange(before, after)
 
     await wrapped(change)

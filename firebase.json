@@ -3,17 +3,8 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": {
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run lint",
-      "npm --prefix \"$RESOURCE_DIR\" run build"
-    ],
-    "source": "functions"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
   "hosting": {
+    "predeploy": "flutter build web",
     "public": "build/web",
     "ignore": [
       "firebase.json",
@@ -21,12 +12,24 @@
       "**/node_modules/**"
     ]
   },
+  "functions": {
+    "predeploy": [
+      "npm --prefix \"$RESOURCE_DIR\" run lint",
+      "npm --prefix \"$RESOURCE_DIR\" run build"
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "emulators": {
     "functions": {
-      "port": 5001
+      "port": 5002
     },
     "firestore": {
       "port": 8080
+    },
+    "hosting": {
+      "port": 5003
     }
   }
 }

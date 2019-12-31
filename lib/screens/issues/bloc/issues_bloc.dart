@@ -33,6 +33,9 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
   Stream<IssuesLoadedState> getIssuesLoadedStatesStream(
           double radius, Location location) =>
       _db.getIssues(radius, location).map(
-        (issues) => IssuesLoadedState(issues: issues),
+        (issues) {
+          print(issues.length);
+          return IssuesLoadedState(issues: issues);
+        },
       );
 }

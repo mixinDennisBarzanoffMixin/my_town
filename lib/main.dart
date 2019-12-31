@@ -19,7 +19,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        StreamProvider<User>.value(value: AuthService().user$),
+        StreamProvider<User>.value(
+          value: AuthService().user$,
+        ),
         BlocProvider<IssuesBloc>.value(value: IssuesBloc()),
       ],
       child: MaterialApp(

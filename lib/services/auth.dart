@@ -20,7 +20,7 @@ class AuthService {
       } else {
         return Stream.value(null);
       }
-    }).map((doc) => doc != null ? User.fromDocument(doc) : null);
+    }).map((doc) => doc != null ? User.fromDocument(doc) : null).doOnData(print);
   }
   static AuthService _instance = AuthService._internal();
 
