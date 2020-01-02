@@ -119,44 +119,14 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
     // await printExifOf(selected);
-    
-      if (selected != null) {
-        // if the user exists the camera without picture -> null
-        setState(() {
-          _imageFile = selected;
-        });
-      }
+
+    if (selected != null) {
+      // if the user exists the camera without picture -> null
+      setState(() {
+        _imageFile = selected;
+      });
     }
-  
-//   printExifOf(File file) async {
-
-//   Map<String, IfdTag> data = await readExifFromFile(file);
-
-//   if (data == null || data.isEmpty) {
-//     print("No EXIF information found\n");
-//     return;
-//   }
-
-//   if (data.containsKey('JPEGThumbnail')) {
-//     print('File has JPEG thumbnail');
-//     data.remove('JPEGThumbnail');
-//   }
-//   if (data.containsKey('TIFFThumbnail')) {
-//     print('File has TIFF thumbnail');
-//     data.remove('TIFFThumbnail');
-//   }
-
-//   for (String key in data.keys) {
-//     print("$key (${data[key].tagType}): ${data[key]}");
-//   }
-  
-// }
-
-//
-//  /// Remove image
-//  void _clear() {
-//    setState(() => _imageFile = null);
-//  }
+  }
 
   Future<StorageUploadTask> _saveToDb(Issue issue) async {
     var firestoreRef = await db.collection('issues').add({
@@ -165,7 +135,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     });
 
     var storageRef =
-        _storage.ref().child('issues/${firestoreRef.documentID}.jpg');
+        _storage.ref().child('${firestoreRef.documentID}/image.jpg');
 
     var task = storageRef.putFile(issue.imageFile);
     task.onComplete.then(
@@ -222,6 +192,7 @@ class _UploaderState extends State<Uploader> {
           );
         },
       );
-    } else return AppProgressIndicator();
+    } else
+      return AppProgressIndicator();
   }
 }

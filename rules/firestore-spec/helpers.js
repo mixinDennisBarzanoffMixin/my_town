@@ -11,7 +11,7 @@ module.exports.setup = async (auth, data) => {
     // Apply no rules
     await firebase.loadFirestoreRules({
         projectId,
-        rules: fs.readFileSync('./allow_all.rules', 'utf8')
+        rules: fs.readFileSync(__dirname + '/../allow_all.rules', 'utf8')
     });
 
     const db = app.firestore();
@@ -29,7 +29,7 @@ module.exports.setup = async (auth, data) => {
     // Apply rules
     await firebase.loadFirestoreRules({
         projectId,
-        rules: fs.readFileSync('../firestore.rules', 'utf8')
+        rules: fs.readFileSync(__dirname + '/../../firestore.rules', 'utf8')
     });
 
     return db;

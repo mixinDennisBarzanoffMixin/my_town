@@ -9,7 +9,7 @@ service cloud.firestore {
       }
 
       allow read;
-      allow write: if isOwner();
+      allow update: if isOwner();
       allow create;
     }
 
@@ -21,7 +21,7 @@ service cloud.firestore {
         return request.resource.data.userId == request.auth.uid;
       }
       allow read;
-      allow write: if isOwner()
+      allow update: if isOwner()
       allow create: if isCreatingWithOwnData();
     }
 
@@ -36,7 +36,7 @@ service cloud.firestore {
         return request.auth.uid == userId;
       }
       allow read;
-      allow write: if isOwnerOfExistingUser();
+      allow update: if isOwnerOfExistingUser();
       allow create: if isSignedIn() && isOwnerOfId(userId);
     }
   }

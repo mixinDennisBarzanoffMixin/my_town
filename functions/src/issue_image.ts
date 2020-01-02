@@ -2,8 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin'
 
 import { uuid } from 'uuidv4'
-import { basename } from 'path'
-
+// import { basename } from 'path'
 
 const defaultStorage = admin.storage()
 const bucket = defaultStorage.bucket()
@@ -14,8 +13,8 @@ export const removeIssueImagesAfterDeleting = functions.firestore
   .onDelete((snap, context) => {
     const issueId = context.params.issueId
 
-    const image = bucket.file(`issues/${issueId}.jpg`)
-    const thumbnail = bucket.file(`issues/thumbnails/${issueId}_180x180.jpg`)
+    const image = bucket.file(`${issueId}/image.jpg`)
+    const thumbnail = bucket.file(`${issueId}/image_180x180.jpg`)
     // Delete the file
     return Promise.all([image.delete(), thumbnail.delete()])
   })
@@ -23,14 +22,13 @@ export const removeIssueImagesAfterDeleting = functions.firestore
 export const addGeneratedThumbnailToDocument = functions.storage
   .object()
   .onFinalize(async (file) => { // todo scope them to buckets
-    if (file.name && /issues\/thumbnails\/.*/.test(file.name)) { // apply only to thumbnails
+    if (file.name && /image_180x180.jpg/.test(file.name)) { // apply only to thumbnails
       // console.log(file.name)
       // Note if file gets uploaded from here -> infinite recursion!
       
-      
       // issues/thumbnails/issueId_180x180.jpg -> 
       // ['issues/thumbnails/issueId_180x180.jpg', ' issueId']
-      const issueId = /(.*)_180x180.jpg/.exec(basename(file.name))![1].trim() // second is the match
+      const issueId = /(.*)\/image_180x180.jpg/.exec(file.name)![1] // second is the match
       // console.log(issueId)
       const token = uuid()
       const metadata = { // double nesting necessary

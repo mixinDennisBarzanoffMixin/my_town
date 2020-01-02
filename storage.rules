@@ -1,7 +1,18 @@
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
-      allow read, write: if request.auth!=null;
+      allow read;
+    }
+    match /{issueId}/image.jpg {
+      function metadataIsValid() {
+        return request.resource.metadata.uid == request.auth.uid
+      }
+      function existingUidIsTheSame() {
+        return request.auth.uid == resource.metadata.uid
+      }
+
+      allow create: if metadataIsValid()
+      allow update: if metadataIsValid() && existingUidIsTheSame()
     }
   }
 }

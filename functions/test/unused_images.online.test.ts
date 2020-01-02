@@ -11,8 +11,9 @@ describe('Unused images are removed when the issue is deleted', () => {
     const issueRef = db.doc(`issues/${issueId}`)
     let wrappedRemovesImages: WrappedFunction
 
-    const imagePath = `issues/${issueId}.jpg`
-    const thumbnailPath = `issues/thumbnails/${issueId}_180x180.jpg`
+    const imagePath = `${issueId}/image.jpg`
+    console.log(imagePath)
+    const thumbnailPath = `${issueId}/image_180x180.jpg`
 
     beforeAll(async () => {
         wrappedRemovesImages = testEnv.wrap(removeIssueImagesAfterDeleting)
@@ -25,8 +26,8 @@ describe('Unused images are removed when the issue is deleted', () => {
 
     test('deletes unused files after deleting issue', async () => {
         const snap = testEnv.firestore.makeDocumentSnapshot({}, issueRef.path)
-
-        await wrappedRemovesImages(snap, { params: { issueId: issueId } })
+        console.log(issueId)
+        await wrappedRemovesImages(snap, { params: { issueId } })
 
         const [[imageExists], [thumbnailExists]] = await Promise.all([
             bucket.file(imagePath).exists(),

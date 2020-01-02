@@ -13,8 +13,8 @@ describe('Tests the issue image cloud functions', () => {
     const db = admin.firestore();
     const issueRef = db.doc(`issues/${issueId}`)
 
-    const thumbnailFilename = `issues/thumbnails/${issueId}_180x180.jpg`
-    const imageFilename = `issues/${issueId}.jpg`
+    const thumbnailFilename = `${issueId}/image_180x180.jpg`
+    const imageFilename = `${issueId}/image.jpg`
 
     beforeEach(async () => {
         await issueRef.set({}) // Warning: Use a testing project where no cloud functions can interfere
@@ -27,6 +27,7 @@ describe('Tests the issue image cloud functions', () => {
         const objectMetadata = testEnv.storage.makeObjectMetadata({ name: thumbnailFilename })
         await wrappedAddGeneratedThumbnail(objectMetadata)
         const issueDoc = await issueRef.get()
+        expect(issueDoc?.data()?.thumbnailUrl).toBeDefined()
         const thumbnailResponse = await fetch(issueDoc?.data()?.thumbnailUrl)
         const resultArrayBuffer = await thumbnailResponse.arrayBuffer()
         const resultImageData = Buffer.from(resultArrayBuffer)

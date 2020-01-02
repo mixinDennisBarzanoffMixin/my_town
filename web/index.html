@@ -1,10 +1,37 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
-  <title>my_town</title>
+  <title>My Town</title>
 </head>
+
 <body>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.6.1/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.6.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.6.1/firebase-auth.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyAVO5FGVgJfOTmr6pUkiBT1oo_DHVKv5iw",
+      authDomain: "my-town-ba556.firebaseapp.com",
+      databaseURL: "https://my-town-ba556.firebaseio.com",
+      projectId: "my-town-ba556",
+      storageBucket: "my-town-ba556.appspot.com",
+      messagingSenderId: "507714643447",
+      appId: "1:507714643447:web:cab00ef38a63dad1befaf2",
+      measurementId: "G-ZXJTHFSZ1H"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
+
 </html>
