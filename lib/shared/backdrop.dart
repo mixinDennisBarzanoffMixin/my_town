@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 const double _kDividerHeadingHeight = 1.0; // front layer divider header height;
 const double _kFrontHeadingHeight = 32.0; // front layer beveled rectangle
 const double _kFrontContainerHeight = 50.0;
-const double _kFrontClosedHeight =
-    _kFrontContainerHeight + _kDividerHeadingHeight; // front layer height when closed
+const double _kFrontClosedHeight = _kFrontContainerHeight +
+    _kDividerHeadingHeight; // front layer height when closed
 // const double _kBackAppBarHeight = 56.0; // back layer (options) appbar height
 
 // The size of the front layer heading's left and right beveled corners.
@@ -231,9 +231,12 @@ class _BackdropState extends State<Backdrop>
                             IconButton(
                               onPressed: _toggleFrontLayer,
                               tooltip: 'Toggle options page',
-                              icon: AnimatedIcon(
-                                icon: AnimatedIcons.close_menu,
-                                progress: _controller,
+                              icon: RotationTransition(
+                                turns: Tween(begin: 0.0, end: 0.5)
+                                    .animate(_controller),
+                                child: Icon(
+                                  Icons.expand_less,
+                                ),
                               ),
                             ),
                           ],
