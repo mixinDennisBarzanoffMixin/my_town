@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_town/services/auth.dart';
 import 'package:my_town/shared/user.dart';
@@ -27,7 +28,7 @@ class AppDrawer extends StatelessWidget {
                   width: 70,
                   child: CircleAvatar(
                     backgroundImage: user?.photoUrl != null
-                        ? NetworkImage(user.photoUrl)
+                        ? CachedNetworkImageProvider(user.photoUrl)
                         : AssetImage('assets/anonymous_avatar.png'),
                   ),
                 ),
@@ -36,7 +37,7 @@ class AppDrawer extends StatelessWidget {
                       ? user.displayName
                       : 'Helpful citizen',
                   style: Theme.of(context)
-                      .textTheme
+                      .textTheme // TODO: extract as a theme
                       .subhead
                       .copyWith(color: Colors.white),
                 ),
@@ -47,8 +48,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ...[
-            if (Provider.of<User>(context) ==
-                null) // TODO: extract as a service method
+            if (user == null) // TODO: extract as a service method
               ListTile(
                 title: Text('Sign in'),
                 onTap: () {

@@ -5,7 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/shared/location.dart';
 import 'package:rxdart/rxdart.dart';
 import './bloc.dart';
-import 'dart:math';
 
 class MapBloc extends Bloc<MapEvent, MapState> {
   Geolocator _locator = Geolocator();

@@ -7,7 +7,8 @@ import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/location.dart';
 
 class FireMap extends StatefulWidget {
-  const FireMap({
+  final Location initialLocation;
+  const FireMap(this.initialLocation, {
     Key key,
   }) : super(key: key);
 
@@ -20,14 +21,11 @@ class _FireMapState extends State<FireMap> {
 
   @override
   Widget build(BuildContext context) {
-    final Location initialLocation = ModalRoute.of(context).settings.arguments;
-
     return BlocProvider<MapBloc>(
-      create: (context) => MapBloc(),
+      create: (context) => MapBloc(), // TODO: add bloc consumer instead of this shit
       child: BlocListener<MapBloc, MapState>(
         listener: (context, state) {
           if (state is RadiusAndLocationReadyMapState) {
-            print('bloc listener radius : ${state.radiusAndLocation.radius}');
             var radiusAndLocation = state.radiusAndLocation;
             BlocProvider.of<IssuesBloc>(context).add(
               GetIssuesAtLocationWithRadiusEvent(
@@ -39,13 +37,13 @@ class _FireMapState extends State<FireMap> {
         },
         child: BlocBuilder<IssuesBloc, IssuesState>(
           builder: (context, state) {
-            print('rebuilt');
+            print('rebuilt'); // TODO: make the todos get saved for double the area so that the widget doesn't update every time
             Set<Marker> markers = {};
             if (state is IssuesLoadedState) {
               markers = state.issues.map((issues) => issues.toMarker()).toSet();
             }
             var initialCameraPosition = CameraPosition(
-              target: LatLng(initialLocation.latitude, initialLocation.longitude),
+              target: LatLng(widget.initialLocation.latitude, widget.initialLocation.longitude),
               zoom: 10,
             );
 

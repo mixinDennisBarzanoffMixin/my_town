@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:my_town/services/issues_db.dart';
+import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/location.dart';
+import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:rxdart/rxdart.dart';
 import './bloc.dart';
 
@@ -30,12 +33,39 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
     return (events as Observable<IssuesEvent>).switchMap(next);
   }
 
+  @override
+  Stream<IssuesState> transformStates(Stream<IssuesState> states) {
+    // we need to know the history for the nested routes that get to listen after that
+    return (states as Observable<IssuesState>).shareReplay(maxSize: 1);
+  }
+
   Stream<IssuesLoadedState> getIssuesLoadedStatesStream(
           double radius, Location location) =>
-      _db.getIssues(radius, location).map(
-        (issues) {
-          print(issues.length);
-          return IssuesLoadedState(issues: issues);
-        },
-      );
+      Observable<List<IssueFetched>>(_db.getIssues(radius, location))
+          .map((issues) async {
+            final futures = issues.map((issue) async =>
+                await networkImageToByte(issue.thumbnailUrl ?? issue.imageUrl));
+            final bytesList = await Future.wait(futures);
+            return getIssueFetchedWithBytes(issues, bytesList);
+          })
+          .switchMap((it) => Observable.fromFuture(it))
+          .map(
+            (issues) {
+              print(issues.length);
+              return IssuesLoadedState(issues: issues);
+            },
+          );
+}
+
+List<IssueFetchedWithBytes> getIssueFetchedWithBytes(
+    List<IssueFetched> issues, List<Uint8List> bytesList) {
+  var downloadedIssues = <IssueFetchedWithBytes>[];
+  for (int i = 0; i < issues.length; i++) {
+    final issue = issues[i];
+    final bytes = bytesList[i];
+    final issueFetchedWithBytes =
+        IssueFetchedWithBytes.fromIssueFetched(issue, bytes);
+    downloadedIssues.add(issueFetchedWithBytes);
+  }
+  return downloadedIssues;
 }

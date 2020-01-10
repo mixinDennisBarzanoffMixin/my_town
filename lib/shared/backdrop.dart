@@ -8,7 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
 const double _kDividerHeadingHeight = 1.0; // front layer divider header height;
-const double _kFrontHeadingHeight = 32.0; // front layer beveled rectangle
+const double _kFrontHeadingHeight = 20.0; // front layer circular rectangle
 const double _kFrontContainerHeight = 50.0;
 const double _kFrontClosedHeight = _kFrontContainerHeight +
     _kDividerHeadingHeight; // front layer height when closed
@@ -17,8 +17,8 @@ const double _kFrontClosedHeight = _kFrontContainerHeight +
 // The size of the front layer heading's left and right beveled corners.
 final Animatable<BorderRadius> _kFrontHeadingBevelRadius = BorderRadiusTween(
   begin: const BorderRadius.only(
-    topLeft: Radius.circular(12.0),
-    topRight: Radius.circular(12.0),
+    topLeft: Radius.circular(_kFrontHeadingHeight),
+    topRight: Radius.circular(_kFrontHeadingHeight),
   ),
   end: const BorderRadius.only(
     topLeft: Radius.circular(_kFrontHeadingHeight),
@@ -169,21 +169,29 @@ class _BackdropState extends State<Backdrop>
     ));
     return Stack(
       children: <Widget>[
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              child: _TappableWhileStatusIs(
-                AnimationStatus.dismissed,
-                controller: _controller,
-                child: _VisibleWhileStatusIs(
-                  (status) => status != AnimationStatus.completed,
+        Theme(
+          data: Theme.of(context).copyWith(
+            textTheme: Theme.of(context).textTheme.apply(
+                  bodyColor: Colors.white,
+                  displayColor: Colors.white,
+                ),// TODO: fix the them
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: _TappableWhileStatusIs(
+                  AnimationStatus.dismissed,
                   controller: _controller,
-                  child: widget.backLayer,
+                  child: _VisibleWhileStatusIs(
+                    (status) => status != AnimationStatus.completed,
+                    controller: _controller,
+                    child: widget.backLayer,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
 
         PositionedTransition(
@@ -195,7 +203,7 @@ class _BackdropState extends State<Backdrop>
                 elevation: 12.0,
                 color: Theme.of(context).canvasColor,
                 clipper: ShapeBorderClipper(
-                  shape: BeveledRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius:
                         _kFrontHeadingBevelRadius.transform(_controller.value),
                   ),
@@ -224,9 +232,11 @@ class _BackdropState extends State<Backdrop>
                           children: <Widget>[
                             Container(
                               // height: _kFrontHeadingHeight,
-                              child: Text(
-                                widget.frontHeadingText,
-                              ),
+                              child: Text(widget.frontHeadingText,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subhead
+                                      .copyWith(color: Colors.grey)),
                             ),
                             IconButton(
                               onPressed: _toggleFrontLayer,
@@ -275,9 +285,11 @@ class _BackdropState extends State<Backdrop>
   Widget build(BuildContext context) {
     // print(_controller.status);
     return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor,
       key: _backdropKey,
       appBar: AppBar(
         leading: widget.frontAction,
+        elevation: 0,
         title: _CrossFadeTransition(
           progress: _controller,
           alignment: AlignmentDirectional.centerStart,

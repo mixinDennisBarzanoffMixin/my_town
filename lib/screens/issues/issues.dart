@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_town/screens/fire_map/fire_map.dart';
 import 'package:my_town/screens/issues/issue-detail/issue_detail.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
-import 'package:my_town/screens/issues/filter_results_widget.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
 import 'package:my_town/shared/drawer.dart';
+import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/progress_indicator.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:flutter/rendering.dart';
@@ -35,6 +36,7 @@ class IssuesScreenState extends State<IssuesScreen> {
   build(context) {
     return BlocBuilder<IssuesBloc, IssuesState>(
       builder: (context, state) {
+        print('state');
         print(state);
         return Backdrop(
           frontTitle: Text('Issues in your area'),
@@ -55,9 +57,20 @@ class IssuesScreenState extends State<IssuesScreen> {
               ),
             ),
           ),
-          frontHeadingText: state is IssuesLoadedState ? '${state.issues.length} issues': 'Issues',
+          frontHeadingText: state is IssuesLoadedState
+              ? '${state.issues.length} issues'
+              : 'Issues',
           backTitle: Text('Options'),
-          backLayer: FilterResultsWidget(),
+          backLayer: FutureBuilder<Location>(
+            future: this
+                .locator
+                .getCurrentPosition() // TODO: see how you're gonna get the position
+                .then((position) => Location.fromPosition(position)),
+            builder: (context, location) {
+              if (location.hasData) return FireMap(location.data);
+              return AppProgressIndicator();
+            },
+          ),
           drawer: AppDrawer(),
         );
       },
@@ -65,98 +78,65 @@ class IssuesScreenState extends State<IssuesScreen> {
   }
 }
 
-class IssueCard extends StatefulWidget {
+class IssueCard extends StatelessWidget {
   const IssueCard(
     this.issue, {
     Key key,
   }) : super(key: key);
 
-  final IssueFetched issue;
-
-  @override
-  _IssueCardState createState() => _IssueCardState();
-}
-
-class _IssueCardState extends State<IssueCard> {
-  Future<Uint8List> imageBytesFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    initializeImageBytes();
-  }
-
-  @override
-  void didUpdateWidget(IssueCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.issue != widget.issue) {
-      initializeImageBytes();
-    }
-  }
-
-  void initializeImageBytes() {
-    imageBytesFuture =
-        networkImageToByte(widget.issue.thumbnailUrl ?? widget.issue.imageUrl);
-  }
+  final IssueFetchedWithBytes issue;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: imageBytesFuture,
-      builder: (context, imageBytes) {
-        return SizedBox(
-          width: double.infinity,
-          height: 400,
-          child: Card(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: <Widget>[
+          SizedBox(
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                SizedBox(
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/anonymous_avatar.png'),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text('Username'),
-                          )
-                        ],
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.more_vert),
-                        onPressed: () {},
-                      )
-                    ],
-                  ),
+                Row(
+                  children: <Widget>[
+                    CircleAvatar(
+                      backgroundImage:
+                          AssetImage('assets/anonymous_avatar.png'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text('Username'),
+                    )
+                  ],
                 ),
-                imageBytes.hasData
-                    ? GestureDetector(
-                        child: Hero(
-                          tag: widget.issue.id,
-                          child: Image.memory(imageBytes.data),
-                        ),
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          '/issue_detail',
-                          arguments: IssueDetailArguments(
-                            widget.issue,
-                            imageBytes.data,
-                          ),
-                        ),
-                      )
-                    : AppProgressIndicator(),
-                Text(widget.issue.details),
+                IconButton(
+                  icon: Icon(Icons.more_vert),
+                  onPressed: () {},
+                )
               ],
             ),
           ),
-        );
-      },
+          GestureDetector(
+            child: Hero(
+              tag: issue.id,
+              child: SizedBox(
+                width: double.infinity,
+                child: Image.memory(issue.imageBytes,
+                    width: 200, fit: BoxFit.fitWidth),
+              ),
+            ),
+            onTap: () => Navigator.pushNamed(
+              context,
+              '/issue_detail',
+              arguments: issue.id,
+            ),
+          ),
+          Container(
+            child: Text(issue.details),
+            padding: EdgeInsets.symmetric(vertical: 10),
+          ),
+        ],
+      ),
     );
   }
 }
