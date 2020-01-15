@@ -20,13 +20,13 @@ dependencies:
   flutter:
     sdk: flutter
   google_maps_flutter: ^0.5.21+15
-  geolocator: ^5.1.5
+  geolocator: ^5.2.0
   firebase_core: ^0.4.3+1
   firebase_analytics: ^5.0.9
   firebase_storage: ^3.1.1
-  geoflutterfire: ^2.0.3+5
+  geoflutterfire: ^2.0.3+8
 
-  cloud_firestore: ^0.12.9+6
+  cloud_firestore: ^0.13.0
 
   firebase_auth: ^0.15.0
   firebase_auth_web: ^0.1.0
@@ -34,16 +34,16 @@ dependencies:
   google_sign_in: ^4.0.0
   flutter_auth_buttons: ^0.6.0
 
-  rxdart: ^0.22.0
-  provider: ^3.2.0
+  rxdart: ^0.23.0
+  provider: ^4.0.0
 
   camera: ^0.5.0
   image_picker: ^0.6.0
   cached_network_image: ^2.0.0
 
 
-  flutter_bloc: ^2.0.0  # bloc pattern widgets
-  bloc: ^2.0.0 # bloc pattern
+  flutter_bloc: ^3.0.0  # bloc pattern widgets
+  bloc: ^3.0.0 # bloc pattern
   equatable: ^1.0.0
     # some devices have a messed up orientaion
   # flutter_exif_rotation: ^0.2.7

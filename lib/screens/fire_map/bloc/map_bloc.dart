@@ -23,7 +23,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   @override
   Stream<MapState> transformEvents(events, next) {
     return super.transformEvents(
-      Observable<MapEvent>(events).debounceTime(
+      events.debounceTime(
         Duration(milliseconds: 150),
       ),
       next,

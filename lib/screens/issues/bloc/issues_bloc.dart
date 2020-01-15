@@ -30,25 +30,25 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
   Stream<IssuesState> transformEvents(events, next) {
     // The stream never ends so asyncMap doesn't work,
     // we need to switch to the new Stream values when they appear
-    return (events as Observable<IssuesEvent>).switchMap(next);
+    return events.switchMap(next);
   }
 
   @override
   Stream<IssuesState> transformStates(Stream<IssuesState> states) {
     // we need to know the history for the nested routes that get to listen after that
-    return (states as Observable<IssuesState>).shareReplay(maxSize: 1);
+    return states.shareReplay(maxSize: 1);
   }
 
   Stream<IssuesLoadedState> getIssuesLoadedStatesStream(
           double radius, Location location) =>
-      Observable<List<IssueFetched>>(_db.getIssues(radius, location))
+      _db.getIssues(radius, location)
           .map((issues) async {
             final futures = issues.map((issue) async =>
                 await networkImageToByte(issue.thumbnailUrl ?? issue.imageUrl));
             final bytesList = await Future.wait(futures);
             return getIssueFetchedWithBytes(issues, bytesList);
           })
-          .switchMap((it) => Observable.fromFuture(it))
+          .switchMap((it) => Stream.fromFuture(it))
           .map(
             (issues) {
               print(issues.length);

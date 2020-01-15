@@ -20,16 +20,17 @@ class MyApp extends StatelessWidget {
       providers: [
         StreamProvider<User>.value(
           value: AuthService().user$,
+          lazy: false,
         ),
         BlocProvider<IssuesBloc>(create: (_) => IssuesBloc()),
       ],
       child: MaterialApp(
         initialRoute: '/login',
         routes: {
-          '/issues': (context) => IssuesScreen(),
-          '/login': (context) => LoginScreen(),
-          '/issue_detail': (context) => IssueDetailScreen(),
-          '/report_issue': (context) => ReportIssueScreen(),
+          '/issues':        (context) => IssuesScreen(),
+          '/login':         (context) => LoginScreen(),
+          '/issue_detail':  (context) => IssueDetailScreen(),
+          '/report_issue':  (context) => ReportIssueScreen(),
         },
       ),
     );

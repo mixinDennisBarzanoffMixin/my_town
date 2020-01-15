@@ -8,11 +8,9 @@ import 'package:my_town/shared/backdrop.dart';
 import 'package:my_town/shared/drawer.dart';
 import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/progress_indicator.dart';
-import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 

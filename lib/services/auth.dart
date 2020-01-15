@@ -14,7 +14,7 @@ class AuthService {
 
   AuthService._internal() {
     print('initialised authservce');
-    this.user$ = Observable(_auth.onAuthStateChanged).switchMap((firebaseUser) {
+    this.user$ = _auth.onAuthStateChanged.switchMap((firebaseUser) {
       if (firebaseUser != null) {
         return _db.collection('users').document(firebaseUser.uid).snapshots();
       } else {
