@@ -42,7 +42,7 @@ dependencies:
   cached_network_image: ^2.0.0
 
 
-  flutter_bloc: ^3.0.0  # bloc pattern widgets
+  flutter_bloc: ^3.1.0  # bloc pattern widgets
   bloc: ^3.0.0 # bloc pattern
   equatable: ^1.0.0
     # some devices have a messed up orientaion

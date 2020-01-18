@@ -9,6 +9,6 @@ class InitialIssuesState extends IssuesState {}
 class IssuesLoadingState extends IssuesState {}
 
 class IssuesLoadedState extends IssuesState {
-  final List<IssueFetchedWithBytes> issues;
+  final List<IssueFetched> issues;
   IssuesLoadedState({@required this.issues});
 }

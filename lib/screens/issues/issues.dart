@@ -1,7 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_town/screens/fire_map/fire_map.dart';
-import 'package:my_town/screens/issues/issue-detail/issue_detail.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
@@ -10,25 +11,17 @@ import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/progress_indicator.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:network_image_to_byte/network_image_to_byte.dart';
 
 extension on GeoPoint {
   // firestore point to latlng
   LatLng toLatLng() => LatLng(this.latitude, this.longitude);
 }
 
-class IssuesScreen extends StatefulWidget {
-  @override
-  State createState() => IssuesScreenState();
-}
-
-class IssuesScreenState extends State<IssuesScreen> {
-  Firestore db = Firestore.instance;
-  Geolocator locator = Geolocator();
-
-  Stream<List<IssueFetched>> issues$;
+class IssuesScreen extends StatelessWidget {
+  final Geolocator locator = Geolocator();
 
   @override
   build(context) {
@@ -76,13 +69,26 @@ class IssuesScreenState extends State<IssuesScreen> {
   }
 }
 
-class IssueCard extends StatelessWidget {
+class IssueCard extends StatefulWidget {
   const IssueCard(
     this.issue, {
     Key key,
   }) : super(key: key);
 
-  final IssueFetchedWithBytes issue;
+  final IssueFetched issue;
+
+  @override
+  _IssueCardState createState() => _IssueCardState();
+}
+
+class _IssueCardState extends State<IssueCard> {
+  Future<Uint8List> bytes;
+  @override
+  void didChangeDependencies() {
+    bytes =
+        networkImageToByte(widget.issue.thumbnailUrl ?? widget.issue.imageUrl);
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,23 +120,35 @@ class IssueCard extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(
-            child: Hero(
-              tag: issue.id,
-              child: SizedBox(
-                width: double.infinity,
-                child: Image.memory(issue.imageBytes,
-                    width: 200, fit: BoxFit.fitWidth),
-              ),
-            ),
-            onTap: () => Navigator.pushNamed(
-              context,
-              '/issue_detail',
-              arguments: issue.id,
-            ),
-          ),
+          FutureBuilder<Uint8List>(
+              future: bytes,
+              builder: (context, bytesSnapshot) {
+                return bytesSnapshot.hasData
+                    ? GestureDetector(
+                        child: Hero(
+                          tag: widget.issue.id,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Image.memory(
+                              bytesSnapshot.data,
+                              width: 200,
+                              fit: BoxFit.fitWidth,
+                            ),
+                          ),
+                        ),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          '/issues/${widget.issue.id}',
+                          arguments: IssueFetchedWithBytes.fromIssueFetched(
+                            widget.issue,
+                            bytesSnapshot.data,
+                          ),
+                        ),
+                      )
+                    : AppProgressIndicator();
+              }),
           Container(
-            child: Text(issue.details),
+            child: Text(widget.issue.details),
             padding: EdgeInsets.symmetric(vertical: 10),
           ),
         ],

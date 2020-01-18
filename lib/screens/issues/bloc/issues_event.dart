@@ -2,7 +2,9 @@ import 'package:meta/meta.dart';
 import 'package:my_town/shared/location.dart';
 
 @immutable
-abstract class IssuesEvent {}
+abstract class IssuesEvent {
+  const IssuesEvent();
+}
 
 class GetIssuesAtLocationEvent extends IssuesEvent {
   final Location location;
@@ -13,5 +15,5 @@ class GetIssuesAtLocationEvent extends IssuesEvent {
 class GetIssuesAtLocationWithRadiusEvent extends IssuesEvent {
   final double radius;
   final Location location;
-  GetIssuesAtLocationWithRadiusEvent(this.radius, this.location);
+  const GetIssuesAtLocationWithRadiusEvent(this.radius, this.location);
 }

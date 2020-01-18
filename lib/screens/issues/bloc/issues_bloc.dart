@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
@@ -35,37 +34,16 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
 
   @override
   Stream<IssuesState> transformStates(Stream<IssuesState> states) {
-    // we need to know the history for the nested routes that get to listen after that
+    // we only need the latest event, not all of them
     return states.shareReplay(maxSize: 1);
   }
 
   Stream<IssuesLoadedState> getIssuesLoadedStatesStream(
           double radius, Location location) =>
-      _db.getIssues(radius, location)
-          .map((issues) async {
-            final futures = issues.map((issue) async =>
-                await networkImageToByte(issue.thumbnailUrl ?? issue.imageUrl));
-            final bytesList = await Future.wait(futures);
-            return getIssueFetchedWithBytes(issues, bytesList);
-          })
-          .switchMap((it) => Stream.fromFuture(it))
-          .map(
-            (issues) {
-              print(issues.length);
-              return IssuesLoadedState(issues: issues);
-            },
-          );
-}
-
-List<IssueFetchedWithBytes> getIssueFetchedWithBytes(
-    List<IssueFetched> issues, List<Uint8List> bytesList) {
-  var downloadedIssues = <IssueFetchedWithBytes>[];
-  for (int i = 0; i < issues.length; i++) {
-    final issue = issues[i];
-    final bytes = bytesList[i];
-    final issueFetchedWithBytes =
-        IssueFetchedWithBytes.fromIssueFetched(issue, bytes);
-    downloadedIssues.add(issueFetchedWithBytes);
-  }
-  return downloadedIssues;
+      _db.getIssues(radius, location).map(
+        (issues) {
+          print(issues.length);
+          return IssuesLoadedState(issues: issues);
+        },
+      );
 }

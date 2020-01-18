@@ -5,6 +5,7 @@ import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/screens/issues/issues.dart';
 import 'package:my_town/screens/screens.dart';
 import 'package:my_town/services/auth.dart';
+import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 
@@ -25,12 +26,25 @@ class MyApp extends StatelessWidget {
         BlocProvider<IssuesBloc>(create: (_) => IssuesBloc()),
       ],
       child: MaterialApp(
-        initialRoute: '/login',
+        initialRoute: '/issues',
         routes: {
-          '/issues':        (context) => IssuesScreen(),
-          '/login':         (context) => LoginScreen(),
-          '/issue_detail':  (context) => IssueDetailScreen(),
-          '/report_issue':  (context) => ReportIssueScreen(),
+          '/issues': (context) => IssuesScreen(),
+          '/login': (context) => LoginScreen(),
+          // '/issue_detail':  (context) => IssueDetailScreen(),
+          '/report_issue': (context) => ReportIssueScreen(),
+        },
+        onGenerateRoute: (RouteSettings routeSettings) {
+          if (routeSettings.name != '/') {
+            // this is the issues/id route
+            IssueFetchedWithBytes issue = routeSettings.arguments;
+            String issueId = routeSettings.name.split('/').last;
+            return MaterialPageRoute(
+              builder: (context) => IssueDetailScreen(
+                issueId: issueId,
+                issueFetchedWithBytes: issue,
+              ),
+            );
+          }
         },
       ),
     );
