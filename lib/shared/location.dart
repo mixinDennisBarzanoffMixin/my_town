@@ -17,4 +17,6 @@ class Location {
   factory Location.fromGeoPoint(GeoPoint geoPoint) {
     return Location(geoPoint.latitude, geoPoint.longitude);
   }
+
+  LatLng toLatLng() => LatLng(this.latitude, this.longitude);
 }

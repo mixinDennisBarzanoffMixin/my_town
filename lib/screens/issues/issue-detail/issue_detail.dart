@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/screens/issues/issue-detail/vote.dart';
 import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/services/votes_db.dart';
@@ -9,7 +7,6 @@ import 'package:my_town/shared/progress_indicator.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 class IssueDetailScreen extends StatefulWidget {
   final IssueFetchedWithBytes issueFetchedWithBytes;

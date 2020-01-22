@@ -7,13 +7,16 @@ import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
 import 'package:my_town/shared/drawer.dart';
-import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/progress_indicator.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:my_town/shared/user.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
+import 'package:provider/provider.dart';
+
+import 'filter_results_widget.dart';
 
 extension on GeoPoint {
   // firestore point to latlng
@@ -32,8 +35,7 @@ class IssuesScreen extends StatelessWidget {
         return Backdrop(
           frontTitle: Text('Issues in your area'),
           frontLayer: SizedBox(
-            // todo use less widgets
-            height: 200.0,
+            // todo useless widgets
             width: double.infinity, // stretch to the parent width
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -52,14 +54,21 @@ class IssuesScreen extends StatelessWidget {
               ? '${state.issues.length} issues'
               : 'Issues',
           backTitle: Text('Options'),
-          backLayer: FutureBuilder<Location>(
-            future: this
-                .locator
-                .getCurrentPosition() // TODO: see how you're gonna get the position
-                .then((position) => Location.fromPosition(position)),
-            builder: (context, location) {
-              if (location.hasData) return FireMap(location.data);
-              return AppProgressIndicator();
+          backLayer: Builder(
+            builder: (context) {
+              if (Provider.of<User>(context) == null) {
+                //debug statement to disable the map
+                return AppProgressIndicator();
+              }
+              return Stack(
+                children: <Widget>[
+                  FireMap(),
+                  Positioned(
+                    top: 10,
+                    child: FilterResults(),
+                  ),
+                ],
+              );
             },
           ),
           drawer: AppDrawer(),
@@ -84,10 +93,23 @@ class IssueCard extends StatefulWidget {
 class _IssueCardState extends State<IssueCard> {
   Future<Uint8List> bytes;
   @override
-  void didChangeDependencies() {
+  void initState() {
+    super.initState();
+    _initImage();
+  }
+
+  @override
+  void didUpdateWidget(IssueCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.issue.thumbnailUrl != widget.issue.thumbnailUrl ||
+        oldWidget.issue.imageUrl != widget.issue.imageUrl) {
+      _initImage();
+    }
+  }
+
+  void _initImage() {
     bytes =
         networkImageToByte(widget.issue.thumbnailUrl ?? widget.issue.imageUrl);
-    super.didChangeDependencies();
   }
 
   @override
@@ -109,7 +131,7 @@ class _IssueCardState extends State<IssueCard> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
-                      child: Text('Username'),
+                      child: const Text('Username'),
                     )
                   ],
                 ),
@@ -120,33 +142,35 @@ class _IssueCardState extends State<IssueCard> {
               ],
             ),
           ),
-          FutureBuilder<Uint8List>(
-              future: bytes,
-              builder: (context, bytesSnapshot) {
-                return bytesSnapshot.hasData
-                    ? GestureDetector(
-                        child: Hero(
-                          tag: widget.issue.id,
-                          child: SizedBox(
-                            width: double.infinity,
+          SizedBox(
+            width: double.infinity,
+            height: 250, // this is the fixed size of the image
+            child: FutureBuilder<Uint8List>(
+                future: bytes,
+                builder: (context, bytesSnapshot) {
+                  return bytesSnapshot.hasData
+                      ? GestureDetector(
+                          child: Hero(
+                            tag: widget.issue.id,
                             child: Image.memory(
                               bytesSnapshot.data,
-                              width: 200,
-                              fit: BoxFit.fitWidth,
+                              width: double.infinity,
+                              fit: BoxFit
+                                  .fitWidth, // this is to make the image look good in the box
                             ),
                           ),
-                        ),
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          '/issues/${widget.issue.id}',
-                          arguments: IssueFetchedWithBytes.fromIssueFetched(
-                            widget.issue,
-                            bytesSnapshot.data,
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            '/issues/${widget.issue.id}',
+                            arguments: IssueFetchedWithBytes.fromIssueFetched(
+                              widget.issue,
+                              bytesSnapshot.data,
+                            ),
                           ),
-                        ),
-                      )
-                    : AppProgressIndicator();
-              }),
+                        )
+                      : AppProgressIndicator();
+                }),
+          ),
           Container(
             child: Text(widget.issue.details),
             padding: EdgeInsets.symmetric(vertical: 10),

@@ -169,31 +169,15 @@ class _BackdropState extends State<Backdrop>
     ));
     return Stack(
       children: <Widget>[
-        Theme(
-          data: Theme.of(context).copyWith(
-            textTheme: Theme.of(context).textTheme.apply(
-                  bodyColor: Colors.white,
-                  displayColor: Colors.white,
-                ),// TODO: fix the them
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: _TappableWhileStatusIs(
-                  AnimationStatus.dismissed,
-                  controller: _controller,
-                  child: _VisibleWhileStatusIs(
-                    (status) => status != AnimationStatus.completed,
-                    controller: _controller,
-                    child: widget.backLayer,
-                  ),
-                ),
-              ),
-            ],
+        _TappableWhileStatusIs(
+          AnimationStatus.dismissed,
+          controller: _controller,
+          child: _VisibleWhileStatusIs(
+            (status) => status != AnimationStatus.completed,
+            controller: _controller,
+            child: widget.backLayer,
           ),
         ),
-
         PositionedTransition(
           rect: frontRelativeRect,
           child: AnimatedBuilder(
@@ -232,11 +216,13 @@ class _BackdropState extends State<Backdrop>
                           children: <Widget>[
                             Container(
                               // height: _kFrontHeadingHeight,
-                              child: Text(widget.frontHeadingText,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .subhead
-                                      .copyWith(color: Colors.grey)),
+                              child: Text(
+                                widget.frontHeadingText,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subhead
+                                    .copyWith(color: Colors.grey),
+                              ),
                             ),
                             IconButton(
                               onPressed: _toggleFrontLayer,

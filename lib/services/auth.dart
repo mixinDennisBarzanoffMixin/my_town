@@ -14,13 +14,19 @@ class AuthService {
 
   AuthService._internal() {
     print('initialised authservce');
-    this.user$ = _auth.onAuthStateChanged.switchMap((firebaseUser) {
-      if (firebaseUser != null) {
-        return _db.collection('users').document(firebaseUser.uid).snapshots();
-      } else {
-        return Stream.value(null);
-      }
-    }).map((doc) => doc != null ? User.fromDocument(doc) : null).doOnData(print);
+    this.user$ = _auth.onAuthStateChanged
+        .switchMap((firebaseUser) {
+          if (firebaseUser != null) {
+            return _db
+                .collection('users')
+                .document(firebaseUser.uid)
+                .snapshots();
+          } else {
+            return Stream.value(null);
+          }
+        })
+        .map((doc) => doc != null ? User.fromDocument(doc) : null)
+        .doOnData(print);
   }
   static AuthService _instance = AuthService._internal();
 
@@ -28,7 +34,14 @@ class AuthService {
     return _instance;
   }
 
-  Future<FirebaseUser> get getUser => _auth.currentUser();
+  Future<User> get getUser => _auth
+      .currentUser()
+      .then((firebaseUser) => firebaseUser != null
+          ? _db.document('users/${firebaseUser.uid}').get()
+          : null)
+      .then((doc) => doc != null
+          ? User.fromDocument(doc)
+          : null); // TODO duplicating and unnecessary logic
 
   Future<FirebaseUser> googleSignIn() async {
     try {

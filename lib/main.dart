@@ -10,7 +10,7 @@ import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  debugPaintSizeEnabled = true;
+  // debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 
@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider<IssuesBloc>(create: (_) => IssuesBloc()),
+        // BlocProvider<LocationBloc>(create: (_) => LocationBloc()),
       ],
       child: MaterialApp(
         initialRoute: '/issues',

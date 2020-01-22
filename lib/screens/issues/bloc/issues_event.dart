@@ -1,19 +1,27 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
-import 'package:my_town/shared/location.dart';
 
 @immutable
 abstract class IssuesEvent {
   const IssuesEvent();
 }
 
-class GetIssuesAtLocationEvent extends IssuesEvent {
-  final Location location;
+class GetIssuesWithinMapBoundsEvent extends IssuesEvent {
+  final MapScreenData mapData;
 
-  GetIssuesAtLocationEvent(this.location);
+  const GetIssuesWithinMapBoundsEvent(this.mapData);
 }
 
-class GetIssuesAtLocationWithRadiusEvent extends IssuesEvent {
-  final double radius;
-  final Location location;
-  const GetIssuesAtLocationWithRadiusEvent(this.radius, this.location);
+class GetIssuesAtCurrentLocation extends IssuesEvent {}
+
+class GetIssuesAtHomeLocation extends IssuesEvent {}
+
+
+
+class MapScreenData {
+  // used as a tuple (like a Kotlin data class)
+  final LatLngBounds bounds;
+  final CameraPosition position;
+
+  const MapScreenData(this.bounds, this.position);
 }

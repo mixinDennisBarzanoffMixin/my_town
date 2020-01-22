@@ -14,7 +14,7 @@ class IssuesDatabaseService {
     GeoFirePoint toPoint(Location position) =>
         _geo.point(latitude: position.latitude, longitude: position.longitude);
 
-    print('getting locations');
+    print('getting issues');
     return _geo
         .collection(collectionRef: issuesRef)
         .within(
