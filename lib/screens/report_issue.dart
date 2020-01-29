@@ -7,6 +7,8 @@ import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_town/shared/progress_indicator.dart';
+import 'package:my_town/shared/user.dart';
+import 'package:provider/provider.dart';
 
 class Issue {
   String details;
@@ -35,14 +37,14 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   var locator = Geolocator();
   final FirebaseStorage _storage =
       FirebaseStorage(storageBucket: 'gs://my-town-ba556.appspot.com');
-  Firestore db = Firestore.instance;
+  Firestore _db = Firestore.instance;
   StorageUploadTask _imageTask;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Report a problem"),
+        title: Text("Report a Problem"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
@@ -129,15 +131,19 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   }
 
   Future<StorageUploadTask> _saveToDb(Issue issue) async {
-    var firestoreRef = await db.collection('issues').add({
+    final userId = Provider.of<User>(context, listen: false).uid;
+    var firestoreRef = await _db.collection('issues').add({
       'position': issue.position,
       'details': issue.details,
+      'ownerId': userId,
     });
 
     var storageRef =
         _storage.ref().child('${firestoreRef.documentID}/image.jpg');
 
-    var task = storageRef.putFile(issue.imageFile);
+    var task = storageRef.putFile(issue.imageFile, StorageMetadata(customMetadata: {
+      'uid': userId,
+    }));
     task.onComplete.then(
       (snapshot) async {
         return firestoreRef.setData({

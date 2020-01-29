@@ -89,7 +89,7 @@ class Backdrop extends StatefulWidget {
     this.drawer,
   });
 
-  final floatingActionButton;
+  final Widget floatingActionButton;
   final Widget frontAction;
   final Widget frontTitle;
   final Widget frontLayer;
@@ -112,7 +112,7 @@ class _BackdropState extends State<Backdrop>
       Tween<double>(begin: 0.4, end: 1.0).chain(
           CurveTween(curve: const Interval(0.0, 0.4, curve: Curves.easeInOut)));
 
-  double transformScale;
+  double transformScale = 1.0;
 
   @override
   void initState() {

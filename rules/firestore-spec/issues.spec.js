@@ -30,10 +30,10 @@ describe('Tests the issues rules', () => {
     }
     const mockData = {
       [issuePath]: {
-        uid: userId
+        ownerId: userId
       },
       [foreignIssuePath]: {
-        uid: 'a-non-existent-user'
+        ownerId: 'a-non-existent-user'
       }
     }
     const db = await setup(mockUser, mockData);
@@ -46,13 +46,17 @@ describe('Tests the issues rules', () => {
   });
 
 
-  test('Anyone should be able to create an issue', async () => {
-    const mockUser = undefined;
-    const mockData = {
+  test('Anyone should be able to create an issue, provided the ownerId is correct', async () => {
+    var mockUser = {
+      uid: userId
+    };
+    var mockData = {
     }
     const db = await setup(mockUser, mockData);
 
     const issueRef = db.doc(issuePath)
-    await expect(issueRef.set({})).toBeAllowed();
+    await expect(issueRef.set({})).toBeDenied();
+
+    await expect(issueRef.set({ownerId: userId})).toBeAllowed();
   });
 });

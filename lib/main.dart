@@ -24,28 +24,14 @@ class MyApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider<IssuesBloc>(create: (_) => IssuesBloc()),
-        // BlocProvider<LocationBloc>(create: (_) => LocationBloc()),
       ],
       child: MaterialApp(
         initialRoute: '/issues',
         routes: {
           '/issues': (context) => IssuesScreen(),
           '/login': (context) => LoginScreen(),
-          // '/issue_detail':  (context) => IssueDetailScreen(),
+          '/issue_details':  (context) => IssueDetailScreen(),
           '/report_issue': (context) => ReportIssueScreen(),
-        },
-        onGenerateRoute: (RouteSettings routeSettings) {
-          if (routeSettings.name != '/') {
-            // this is the issues/id route
-            IssueFetchedWithBytes issue = routeSettings.arguments;
-            String issueId = routeSettings.name.split('/').last;
-            return MaterialPageRoute(
-              builder: (context) => IssueDetailScreen(
-                issueId: issueId,
-                issueFetchedWithBytes: issue,
-              ),
-            );
-          }
         },
       ),
     );

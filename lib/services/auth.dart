@@ -59,7 +59,7 @@ class AuthService {
       FirebaseUser user = authResult.user;
 
       // updateUserData(user);
-
+      print(user);
       // tried listening to the real user, but too hard
       updateUserData(user);
       // var userRef = ;

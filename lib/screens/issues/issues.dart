@@ -32,6 +32,7 @@ class IssuesScreen extends StatelessWidget {
       builder: (context, state) {
         print('state');
         print(state);
+        // return Container(width: 0.0, height: 0.0);
         return Backdrop(
           frontTitle: Text('Issues in your area'),
           frontLayer: SizedBox(
@@ -74,7 +75,7 @@ class IssuesScreen extends StatelessWidget {
           drawer: AppDrawer(),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              Navigator.pushNamed(context, 'report_issue');
+              Navigator.pushNamed(context, '/report_issue');
             },
             child: Icon(Icons.add),
           ),
@@ -167,7 +168,7 @@ class _IssueCardState extends State<IssueCard> {
                           ),
                           onTap: () => Navigator.pushNamed(
                             context,
-                            '/issues/${widget.issue.id}',
+                            '/issue_details',
                             arguments: IssueFetchedWithBytes.fromIssueFetched(
                               widget.issue,
                               bytesSnapshot.data,

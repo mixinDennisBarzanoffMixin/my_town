@@ -5,12 +5,16 @@ service cloud.firestore {
     match /issues/{issueId} {
 
       function isOwner() {
-        return resource.data.uid == request.auth.uid
+        return resource.data.ownerId == request.auth.uid
+      }
+
+      function isBeingCreatedByOwner() {
+        return request.resource.data.ownerId == request.auth.uid
       }
 
       allow read;
       allow update: if isOwner();
-      allow create;
+      allow create: if isBeingCreatedByOwner();
     }
 
     match /issue-votes/{voteId} {

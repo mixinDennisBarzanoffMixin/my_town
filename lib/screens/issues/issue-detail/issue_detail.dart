@@ -9,13 +9,8 @@ import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:provider/provider.dart';
 
 class IssueDetailScreen extends StatefulWidget {
-  final IssueFetchedWithBytes issueFetchedWithBytes;
-  final String issueId;
-
   const IssueDetailScreen({
     Key key,
-    @required this.issueId,
-    this.issueFetchedWithBytes,
   }) : super(key: key);
   @override
   _IssueDetailScreenState createState() => _IssueDetailScreenState();
@@ -30,11 +25,10 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final userId = Provider.of<User>(context).uid;
-
-    userVote$ = _votesDb.getUserVote(userId, widget.issueId);
-    issue$ = _issuesDb
-        .getIssueById(widget.issueId)
-        .asyncMap(
+    final IssueFetchedWithBytes issue =
+        ModalRoute.of(context).settings.arguments;
+    userVote$ = _votesDb.getUserVote(userId, issue.id);
+    issue$ = _issuesDb.getIssueById(issue.id).asyncMap(
           (issue) async => IssueFetchedWithBytes.fromIssueFetched(
             issue,
             await networkImageToByte(issue.thumbnailUrl ?? issue.imageUrl),
@@ -44,14 +38,16 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String issueId = widget.issueId;
+    final IssueFetchedWithBytes issue =
+        ModalRoute.of(context).settings.arguments;
+    final String issueId = issue.id;
     final userId = Provider.of<User>(context).uid;
     return Scaffold(
       appBar: AppBar(
         title: Text("Issue Details"),
       ),
       body: StreamBuilder<IssueFetchedWithBytes>(
-        initialData: widget.issueFetchedWithBytes,
+        initialData: issue,
         stream: issue$,
         builder: (context, issueSnapshot) {
           if (issueSnapshot.hasData) {
