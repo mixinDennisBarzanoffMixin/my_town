@@ -79,6 +79,7 @@ class _CrossFadeTransition extends AnimatedWidget {
 
 class Backdrop extends StatefulWidget {
   const Backdrop({
+    this.floatingActionButton,
     this.frontAction,
     this.frontTitle,
     this.frontHeadingText,
@@ -88,6 +89,7 @@ class Backdrop extends StatefulWidget {
     this.drawer,
   });
 
+  final floatingActionButton;
   final Widget frontAction;
   final Widget frontTitle;
   final Widget frontLayer;
@@ -110,6 +112,8 @@ class _BackdropState extends State<Backdrop>
       Tween<double>(begin: 0.4, end: 1.0).chain(
           CurveTween(curve: const Interval(0.0, 0.4, curve: Curves.easeInOut)));
 
+  double transformScale;
+
   @override
   void initState() {
     super.initState();
@@ -119,12 +123,21 @@ class _BackdropState extends State<Backdrop>
       vsync: this,
     );
     _frontOpacity = _controller.drive(_frontOpacityTween);
+    _controller.addListener(updateButtonTransform);
   }
 
   @override
   void dispose() {
+    _controller.removeListener(updateButtonTransform);
     _controller.dispose();
     super.dispose();
+  }
+
+  void updateButtonTransform() {
+    // print(transformScale);
+    setState(() {
+      this.transformScale = _controller.value;
+    });
   }
 
   double get _backdropHeight {
@@ -161,6 +174,7 @@ class _BackdropState extends State<Backdrop>
   }
 
   Widget _buildStack(BuildContext context, BoxConstraints constraints) {
+    // print(_controller.value);
     final Animation<RelativeRect> frontRelativeRect =
         _controller.drive(RelativeRectTween(
       begin: RelativeRect.fromLTRB(
@@ -284,6 +298,10 @@ class _BackdropState extends State<Backdrop>
         ),
       ),
       // Back layer
+      floatingActionButton: Transform.scale(
+        child: widget.floatingActionButton,
+        scale: transformScale,
+      ),
       drawer: widget.drawer, //todo
       body: LayoutBuilder(builder: _buildStack),
     );

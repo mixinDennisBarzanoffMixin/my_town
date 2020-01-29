@@ -72,6 +72,12 @@ class IssuesScreen extends StatelessWidget {
             },
           ),
           drawer: AppDrawer(),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.pushNamed(context, 'report_issue');
+            },
+            child: Icon(Icons.add),
+          ),
         );
       },
     );
