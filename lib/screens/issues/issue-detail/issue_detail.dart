@@ -25,8 +25,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final userId = Provider.of<User>(context).uid;
-    final IssueFetchedWithBytes issue =
-        ModalRoute.of(context).settings.arguments;
+    final IssueFetched issue = ModalRoute.of(context).settings.arguments;
     userVote$ = _votesDb.getUserVote(userId, issue.id);
     issue$ = _issuesDb.getIssueById(issue.id).asyncMap(
           (issue) async => IssueFetchedWithBytes.fromIssueFetched(
@@ -38,15 +37,14 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final IssueFetchedWithBytes issue =
-        ModalRoute.of(context).settings.arguments;
+    final IssueFetched issue = ModalRoute.of(context).settings.arguments;
     final String issueId = issue.id;
     final userId = Provider.of<User>(context).uid;
     return Scaffold(
       appBar: AppBar(
         title: Text("Issue Details"),
       ),
-      body: StreamBuilder<IssueFetchedWithBytes>(
+      body: StreamBuilder<IssueFetched>(
         initialData: issue,
         stream: issue$,
         builder: (context, issueSnapshot) {
@@ -60,17 +58,23 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
                   child: Hero(
                     tag: issue.id, // the tag for the animations much match
                     child: issue.hasThumbnail
-                        ? FadeInImage.memoryNetwork(
-                            placeholder: issue.imageBytes,
-                            image: issue.imageUrl,
-                            fit: BoxFit.cover, // cover the parent
-                            fadeInDuration: Duration(milliseconds: 100),
-                            fadeOutDuration: Duration(milliseconds: 100),
-                          )
-                        : Image.memory(
-                            issue
-                                .imageBytes, // if no thumb, show only real image
-                          ), // no animation otherwise
+                        ? (issue is IssueFetchedWithBytes
+                            ? FadeInImage.memoryNetwork(
+                                placeholder: issue.imageBytes,
+                                image: issue.imageUrl,
+                                fit: BoxFit.cover, // cover the parent
+                                fadeInDuration: Duration(milliseconds: 100),
+                                fadeOutDuration: Duration(milliseconds: 100),
+                              )
+                            : Image.network(issue.imageUrl))
+                        : (issue is IssueFetchedWithBytes)
+                            ? Image.memory(
+                                issue.imageBytes,
+                                // if no thumb, show only real image
+                              )
+                            : Image.network(
+                                issue.imageUrl), // no animation otherwise
+                                // TODO too much code duplication
                   ),
                 ),
                 StreamBuilder<UserVote>(

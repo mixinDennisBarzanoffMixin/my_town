@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,21 +7,33 @@ import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_town/services/issues_db.dart';
+import 'package:my_town/shared/Issue_fetched.dart';
+import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/progress_indicator.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:http/http.dart' as http;
 
-class Issue {
+class FormIssue {
   String details;
   dynamic position;
   File imageFile;
 
-  Issue({
+  FormIssue({
     // todo fix this
     @required this.details,
     @required this.position,
     @required this.imageFile,
   });
+}
+
+class TaskAndDocId {
+  final StorageUploadTask task;
+  final String documentID;
+
+  TaskAndDocId(this.task, this.documentID);
 }
 
 class ReportIssueScreen extends StatefulWidget {
@@ -34,39 +47,30 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
   final _textEditingController = TextEditingController();
   Geoflutterfire geo = Geoflutterfire();
+  final ImageLabeler labeler = FirebaseVision.instance.imageLabeler();
+
   var locator = Geolocator();
   final FirebaseStorage _storage =
       FirebaseStorage(storageBucket: 'gs://my-town-ba556.appspot.com');
   Firestore _db = Firestore.instance;
+  IssuesDatabaseService _issuesDb = IssuesDatabaseService();
+  Geolocator _locator = Geolocator();
   StorageUploadTask _imageTask;
+
+  bool _alreadySubmitted = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>(debugLabel: 'Report Scaffold');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("Report a Problem"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
             tooltip: 'Submit', // todo test
-            onPressed: () async {
-              if (_formKey.currentState.validate()) {
-                var pos = await locator.getCurrentPosition();
-                GeoFirePoint point = geo.point(
-                  latitude: pos.latitude,
-                  longitude: pos.longitude,
-                );
-                var issue = Issue(
-                  details: _textEditingController.text,
-                  imageFile: _imageFile,
-                  position: point.data,
-                );
-                var imageTask = await _saveToDb(issue);
-                setState(() {
-                  this._imageTask = imageTask;
-                });
-              }
-            },
+            onPressed: _alreadySubmitted ? null : _onPressedSubmitIssueData,
           )
         ],
       ),
@@ -117,9 +121,108 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     );
   }
 
+  _onPressedSubmitIssueData() async {
+    setState(() {
+      _alreadySubmitted = true;
+    });
+    if (_formKey.currentState.validate()) {
+      var pos = await locator.getCurrentPosition();
+      GeoFirePoint point = geo.point(
+        latitude: pos.latitude,
+        longitude: pos.longitude,
+      );
+      final issue = FormIssue(
+        details: _textEditingController.text,
+        imageFile: _imageFile,
+        position: point.data,
+      );
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text('Searching for similar issues'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      final similarIssue = await _findSimilarIssueTo(issue);
+      if (similarIssue != null) {
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Similar Issue Found'),
+                content: Text(
+                  'A similar issue to the one you are about to submit already exists in the Database.',
+                  softWrap: true,
+                ),
+                actions: <Widget>[
+                  RaisedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/issue_details',
+                          arguments: similarIssue);
+                    },
+                    child: Text('View'),
+                    color: Theme.of(context).primaryColor,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  FlatButton(
+                    onPressed: () async {
+                      await _submitIssueAndNavigateToIt(issue);
+                    },
+                    child: Text('Proceed with upload'),
+                  )
+                ],
+              );
+            });
+        setState(() {
+          _alreadySubmitted = false; // the dialog was dismissed
+        });
+      } else {
+        await _submitIssueAndNavigateToIt(issue);
+      }
+    }
+  }
+
+  Future<String> _submitIssue(FormIssue issue) async {
+    final taskAndId = await _saveToDb(issue);
+    final imageTask = taskAndId.task;
+    var issueId = taskAndId.documentID;
+    imageTask.onComplete.then((_) => Navigator.pushReplacementNamed(
+          context,
+          '/issue_details',
+          arguments: issue,
+        ));
+    setState(() {
+      this._imageTask = imageTask;
+    });
+    return issueId;
+  }
+
+  _submitIssueAndNavigateToIt(FormIssue issue) async {
+    try {
+      setState(() {
+        _alreadySubmitted = true;
+      });
+      final id = await _submitIssue(issue);
+      final issueFetched = await _issuesDb.getIssueById(id).first;
+      Navigator.of(context)
+          .pushReplacementNamed('/issue_details', arguments: issueFetched);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   /// Select an image via gallery or camera
   _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
+    // final labels = await labeler.processImage(FirebaseVisionImage.fromFile(selected));
+    // for (final label in labels) {
+    //   print('Image classified');
+    //   print('-------------');
+    //   print(label.text);
+    //   print(label.confidence);
+    //   print(label.entityId);
+    //   print('-------------');
+    // }
+
     // await printExifOf(selected);
 
     if (selected != null) {
@@ -130,28 +233,73 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     }
   }
 
-  Future<StorageUploadTask> _saveToDb(Issue issue) async {
+  Future<TaskAndDocId> _saveToDb(FormIssue issue) async {
+    print('Saving to database');
     final userId = Provider.of<User>(context, listen: false).uid;
     var firestoreRef = await _db.collection('issues').add({
       'position': issue.position,
       'details': issue.details,
-      'ownerId': userId,
+      'ownerId': userId, // TODO: not ideal, needs fixing
     });
 
     var storageRef =
         _storage.ref().child('${firestoreRef.documentID}/image.jpg');
 
-    var task = storageRef.putFile(issue.imageFile, StorageMetadata(customMetadata: {
-      'uid': userId,
-    }));
+    var task = storageRef.putFile(
+        issue.imageFile,
+        StorageMetadata(customMetadata: {
+          'uid': userId,
+        }));
     task.onComplete.then(
       (snapshot) async {
-        return firestoreRef.setData({
+        await firestoreRef.setData({
           'imageUrl': await storageRef.getDownloadURL(),
         }, merge: true);
       },
     );
-    return task;
+    return TaskAndDocId(task, firestoreRef.documentID);
+  }
+
+  Future<IssueFetched> _findSimilarIssueTo(FormIssue issue) async {
+    Future<double> textSimilarityBetween(String text1, String text2) async {
+      final encodedText1 = Uri.encodeComponent(text1);
+      final encodedText2 = Uri.encodeComponent(text2);
+      final token = '7ddb04d3bff345f7933e9c9a3b7fa038';
+      final lang = 'en';
+      final encodedUrl =
+          'https://api.dandelion.eu/datatxt/sim/v1/?text1=$encodedText1&text2=$encodedText2&lang=$lang&token=$token';
+      final response = await http.get(encodedUrl);
+      final jsonResponse = json.decode(response.body);
+      // print(jsonResponse.toString());
+      final double similarity = jsonResponse['similarity'];
+      return similarity;
+    }
+
+    final position = await _locator.getCurrentPosition();
+    final issuesNearBy = await this
+        ._issuesDb
+        .getIssues(.5, Location.fromPosition(position))
+        .first;
+    final similarities = {
+      for (var issueNearBy in issuesNearBy)
+        await textSimilarityBetween(issue.details, issueNearBy.details):
+            issueNearBy
+    };
+    print('similarities:');
+    print(similarities);
+    final sortedSimilarities = similarities.keys.toList()..sort();
+    final highestSimilarityKey = sortedSimilarities.last;
+    if (highestSimilarityKey > 0.5) {
+      // really similar
+      print(highestSimilarityKey);
+      final similarIssue = similarities[highestSimilarityKey];
+      print(similarIssue);
+      return similarIssue;
+    } else {
+      // no similar issues
+      print('no similar issues');
+      return null;
+    }
   }
 }
 

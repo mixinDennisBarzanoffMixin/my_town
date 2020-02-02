@@ -34,10 +34,10 @@ class IssueFetched extends Equatable {
   @override
   String toString() {
     return """
-      thumbnail: $thumbnailUrl,
-      imageUrl: $imageUrl,
       details: $details,
     """;
+    //       thumbnail: $thumbnailUrl,
+      // imageUrl: $imageUrl,
   }
 
   @override

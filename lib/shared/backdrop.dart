@@ -112,8 +112,6 @@ class _BackdropState extends State<Backdrop>
       Tween<double>(begin: 0.4, end: 1.0).chain(
           CurveTween(curve: const Interval(0.0, 0.4, curve: Curves.easeInOut)));
 
-  double transformScale = 1.0;
-
   @override
   void initState() {
     super.initState();
@@ -123,21 +121,11 @@ class _BackdropState extends State<Backdrop>
       vsync: this,
     );
     _frontOpacity = _controller.drive(_frontOpacityTween);
-    _controller.addListener(updateButtonTransform);
   }
-
   @override
   void dispose() {
-    _controller.removeListener(updateButtonTransform);
     _controller.dispose();
     super.dispose();
-  }
-
-  void updateButtonTransform() {
-    // print(transformScale);
-    setState(() {
-      this.transformScale = _controller.value;
-    });
   }
 
   double get _backdropHeight {
@@ -174,7 +162,7 @@ class _BackdropState extends State<Backdrop>
   }
 
   Widget _buildStack(BuildContext context, BoxConstraints constraints) {
-    // print(_controller.value);
+    print('backdrop rebuilt');
     final Animation<RelativeRect> frontRelativeRect =
         _controller.drive(RelativeRectTween(
       begin: RelativeRect.fromLTRB(
@@ -234,7 +222,7 @@ class _BackdropState extends State<Backdrop>
                                 widget.frontHeadingText,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .subhead
+                                    .subtitle1
                                     .copyWith(color: Colors.grey),
                               ),
                             ),
@@ -298,13 +286,55 @@ class _BackdropState extends State<Backdrop>
         ),
       ),
       // Back layer
-      floatingActionButton: Transform.scale(
-        child: widget.floatingActionButton,
-        scale: transformScale,
-      ),
+      floatingActionButton:
+          ScalingButton(widget: widget, controller: _controller),
       drawer: widget.drawer, //todo
       body: LayoutBuilder(builder: _buildStack),
     );
+  }
+}
+
+class ScalingButton extends StatefulWidget {
+  const ScalingButton({
+    Key key,
+    @required this.widget,
+    this.controller,
+  }) : super(key: key);
+
+  final Backdrop widget;
+  final AnimationController controller;
+
+  @override
+  _ScalingButtonState createState() => _ScalingButtonState();
+}
+
+class _ScalingButtonState extends State<ScalingButton> {
+  double transformScale = 1.0; // TODO fix
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(updateButtonTransform);
+  }
+
+  void updateButtonTransform() {
+    // print(transformScale);
+    setState(() {
+      this.transformScale = widget.controller.value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.scale(
+      child: widget.widget.floatingActionButton,
+      scale: transformScale,
+    );
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(updateButtonTransform);
+    super.dispose();
   }
 }
 
