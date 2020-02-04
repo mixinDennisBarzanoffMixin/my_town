@@ -24,14 +24,8 @@ extension on GeoPoint {
   LatLng toLatLng() => LatLng(this.latitude, this.longitude);
 }
 
-class IssuesScreen extends StatefulWidget {
-  @override
-  _IssuesScreenState createState() => _IssuesScreenState();
-}
-
-class _IssuesScreenState extends State<IssuesScreen> {
+class IssuesScreen extends StatelessWidget {
   final Geolocator locator = Geolocator();
-  var _showMap = true;
 
   @override
   build(context) {
