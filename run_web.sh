@@ -1,0 +1,1 @@
+flutter run -dWeb --web-hostname='0.0.0.0' --web-port=8080
