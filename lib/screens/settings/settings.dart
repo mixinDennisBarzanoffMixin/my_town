@@ -20,8 +20,9 @@ class SettingsScreen extends StatelessWidget {
               title: Text('Show the issues map'),
               value: state.showMap,
               onChanged: (bool showMap) {
-                BlocProvider.of<SettingsBloc>(context)
-                    .add(MapVisibilitySettingsEvent(showMap));
+                BlocProvider.of<SettingsBloc>(context).add(
+                  MapVisibilitySettingsEvent(showMap),
+                );
               },
             ),
           ),
