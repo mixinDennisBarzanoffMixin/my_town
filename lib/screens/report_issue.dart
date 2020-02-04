@@ -13,7 +13,6 @@ import 'package:my_town/shared/location.dart';
 import 'package:my_town/shared/progress_indicator.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:http/http.dart' as http;
 
 class FormIssue {
@@ -47,7 +46,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
   final _textEditingController = TextEditingController();
   Geoflutterfire geo = Geoflutterfire();
-  final ImageLabeler labeler = FirebaseVision.instance.imageLabeler();
 
   var locator = Geolocator();
   final FirebaseStorage _storage =

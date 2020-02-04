@@ -38,7 +38,7 @@ class AppDrawer extends StatelessWidget {
                       : 'Helpful citizen',
                   style: Theme.of(context)
                       .textTheme // TODO: extract as a theme
-                      .subhead
+                      .subtitle1
                       .copyWith(color: Colors.white),
                 ),
               ],
@@ -46,6 +46,12 @@ class AppDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
+          ),
+          ListTile(
+            title: Text('Settings'),
+            onTap: () {
+              Navigator.of(context).pushNamed('/settings');
+            },
           ),
           ...[
             if (user == null) // TODO: extract as a service method

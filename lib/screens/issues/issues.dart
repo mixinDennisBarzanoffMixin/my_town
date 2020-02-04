@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_town/screens/fire_map/fire_map.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
+import 'package:my_town/screens/settings/bloc/settings_bloc.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
 import 'package:my_town/shared/drawer.dart';
@@ -23,8 +24,14 @@ extension on GeoPoint {
   LatLng toLatLng() => LatLng(this.latitude, this.longitude);
 }
 
-class IssuesScreen extends StatelessWidget {
+class IssuesScreen extends StatefulWidget {
+  @override
+  _IssuesScreenState createState() => _IssuesScreenState();
+}
+
+class _IssuesScreenState extends State<IssuesScreen> {
   final Geolocator locator = Geolocator();
+  var _showMap = true;
 
   @override
   build(context) {
@@ -57,18 +64,19 @@ class IssuesScreen extends StatelessWidget {
           backTitle: Text('Options'),
           backLayer: Builder(
             builder: (context) {
-              if (Provider.of<User>(context) == null) {
-                //debug statement to disable the map
-                return AppProgressIndicator();
-              }
-              return Stack(
-                children: <Widget>[
-                  FireMap(),
-                  Positioned(
-                    top: 10,
-                    child: FilterResults(),
-                  ),
-                ],
+              return BlocBuilder<SettingsBloc, SettingsState>(
+                condition: (oldState, newState) => oldState.showMap != newState.showMap,
+                builder: (context, state) {
+                  return Stack(
+                    children: <Widget>[
+                      if (state.showMap) FireMap(),
+                      Positioned(
+                        top: 10,
+                        child: FilterResults(),
+                      ),
+                    ],
+                  );
+                }
               );
             },
           ),
@@ -144,7 +152,7 @@ class _IssueCardState extends State<IssueCard> {
                 ),
                 IconButton(
                   icon: Icon(Icons.more_vert),
-                  onPressed: () {},
+                  onPressed: () {}, // TODO add delete functionality
                 )
               ],
             ),
