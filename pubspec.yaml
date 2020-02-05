@@ -47,6 +47,10 @@ dependencies:
   network_image_to_byte: ^0.0.1
 
   http: ^0.12.0+4
+
+  responsive_scaffold: 
+    git:
+      url: https://github.com/DenisBarzanov/responsive_scaffold.git
   
   cupertino_icons: ^0.1.2
 

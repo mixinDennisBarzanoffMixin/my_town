@@ -7,7 +7,6 @@ import 'package:my_town/screens/screens.dart';
 import 'package:my_town/screens/settings/bloc/settings_bloc.dart';
 import 'package:my_town/screens/settings/settings.dart';
 import 'package:my_town/services/auth.dart';
-import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 

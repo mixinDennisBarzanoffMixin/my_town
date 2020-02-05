@@ -8,14 +8,13 @@ import 'package:my_town/screens/settings/bloc/settings_bloc.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
 import 'package:my_town/shared/drawer.dart';
+import 'package:my_town/shared/layout_breakpoints.dart';
 import 'package:my_town/shared/progress_indicator.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:my_town/shared/user.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
-import 'package:provider/provider.dart';
 
 import 'filter_results_widget.dart';
 
@@ -33,23 +32,23 @@ class IssuesScreen extends StatelessWidget {
       builder: (context, state) {
         print('state');
         print(state);
-        // return Container(width: 0.0, height: 0.0);
         return Backdrop(
           frontTitle: Text('Issues in your area'),
           frontLayer: SizedBox(
             // todo useless widgets
             width: double.infinity, // stretch to the parent width
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: ListView(
-                children: [
-                  if (state is IssuesLoadingState)
-                    AppProgressIndicator()
-                  else if (state is IssuesLoadedState)
-                    for (var issue in state.issues) IssueCard(issue)
-                ],
-                scrollDirection: Axis.vertical,
-              ),
+            child: GridView.count(
+              padding: EdgeInsets.symmetric(horizontal: getIssuesGridGutter(context)),
+              crossAxisCount: getIssueGridCount(context),
+              crossAxisSpacing: getIssuesGridGutter(context),
+              mainAxisSpacing: getIssuesGridGutter(context),
+              children: [
+                if (state is IssuesLoadingState)
+                  AppProgressIndicator()
+                else if (state is IssuesLoadedState)
+                  for (var issue in state.issues) IssueCard(issue)
+              ],
+              scrollDirection: Axis.vertical,
             ),
           ),
           frontHeadingText: state is IssuesLoadedState
@@ -59,19 +58,19 @@ class IssuesScreen extends StatelessWidget {
           backLayer: Builder(
             builder: (context) {
               return BlocBuilder<SettingsBloc, SettingsState>(
-                condition: (oldState, newState) => oldState.showMap != newState.showMap,
-                builder: (context, state) {
-                  return Stack(
-                    children: <Widget>[
-                      if (state.showMap) FireMap(),
-                      Positioned(
-                        top: 10,
-                        child: FilterResults(),
-                      ),
-                    ],
-                  );
-                }
-              );
+                  condition: (oldState, newState) =>
+                      oldState.showMap != newState.showMap,
+                  builder: (context, state) {
+                    return Stack(
+                      children: <Widget>[
+                        if (state.showMap) FireMap(),
+                        Positioned(
+                          top: 10,
+                          child: FilterResults(),
+                        ),
+                      ],
+                    );
+                  });
             },
           ),
           drawer: AppDrawer(),
@@ -84,6 +83,29 @@ class IssuesScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  int getIssueGridCount(BuildContext context) {
+    ScreenSize size = getScreenSizeFrom(context);
+    switch (size) {
+      case ScreenSize.small:
+        return 1;
+      case ScreenSize.medium:
+        return 2;
+      case ScreenSize.large:
+        return 3;
+    }
+  }
+
+  double getIssuesGridGutter(BuildContext context) {
+    ScreenSize size = getScreenSizeFrom(context);
+    switch (size) {
+      case ScreenSize.small:
+        return 16;
+      case ScreenSize.medium:
+      case ScreenSize.large:
+        return 24;
+    }
   }
 }
 
@@ -123,68 +145,76 @@ class _IssueCardState extends State<IssueCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
+    return LayoutBuilder(
+      builder: (context, constraints) => Container(
+        height: constraints.maxWidth, // The card is as tall as it is wide
+        child: Card(
+          margin: EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    CircleAvatar(
-                      backgroundImage:
-                          AssetImage('assets/anonymous_avatar.png'),
+                    Row(
+                      children: <Widget>[
+                        CircleAvatar(
+                          backgroundImage:
+                              AssetImage('assets/anonymous_avatar.png'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: const Text('Username'),
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: const Text('Username'),
+                    IconButton(
+                      icon: Icon(Icons.more_vert),
+                      onPressed: () {}, // TODO add delete functionality
                     )
                   ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.more_vert),
-                  onPressed: () {}, // TODO add delete functionality
-                )
-              ],
-            ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 250, // this is the fixed size of the image
+                  child: FutureBuilder<Uint8List>(
+                      future: bytes,
+                      builder: (context, bytesSnapshot) {
+                        return bytesSnapshot.hasData
+                            ? GestureDetector(
+                                child: Hero(
+                                  tag: widget.issue.id,
+                                  child: Image.memory(
+                                    bytesSnapshot.data,
+                                    width: double.infinity,
+                                    fit: BoxFit
+                                        .fitWidth, // this is to make the image look good in the box
+                                  ),
+                                ),
+                                onTap: () => Navigator.pushNamed(
+                                  context,
+                                  '/issue_details',
+                                  arguments:
+                                      IssueFetchedWithBytes.fromIssueFetched(
+                                    widget.issue,
+                                    bytesSnapshot.data,
+                                  ),
+                                ),
+                              )
+                            : AppProgressIndicator();
+                      }),
+                ),
+              ),
+              Container(
+                child: Text(widget.issue.details),
+                padding: EdgeInsets.symmetric(vertical: 10),
+              ),
+            ],
           ),
-          SizedBox(
-            width: double.infinity,
-            height: 250, // this is the fixed size of the image
-            child: FutureBuilder<Uint8List>(
-                future: bytes,
-                builder: (context, bytesSnapshot) {
-                  return bytesSnapshot.hasData
-                      ? GestureDetector(
-                          child: Hero(
-                            tag: widget.issue.id,
-                            child: Image.memory(
-                              bytesSnapshot.data,
-                              width: double.infinity,
-                              fit: BoxFit
-                                  .fitWidth, // this is to make the image look good in the box
-                            ),
-                          ),
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            '/issue_details',
-                            arguments: IssueFetchedWithBytes.fromIssueFetched(
-                              widget.issue,
-                              bytesSnapshot.data,
-                            ),
-                          ),
-                        )
-                      : AppProgressIndicator();
-                }),
-          ),
-          Container(
-            child: Text(widget.issue.details),
-            padding: EdgeInsets.symmetric(vertical: 10),
-          ),
-        ],
+        ),
       ),
     );
   }

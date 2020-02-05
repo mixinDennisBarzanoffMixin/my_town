@@ -373,6 +373,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
+  responsive_scaffold:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "59fe621e7acfc053258512e6c7e2b74cf0e0282b"
+      url: "https://github.com/DenisBarzanov/responsive_scaffold.git"
+    source: git
+    version: "1.2.0"
   rxdart:
     dependency: "direct main"
     description:
@@ -380,6 +389,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.23.1"
+  scroll_to_index:
+    dependency: transitive
+    description:
+      name: scroll_to_index
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.5"
   sky_engine:
     dependency: transitive
     description: flutter

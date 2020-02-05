@@ -6,9 +6,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:responsive_scaffold/responsive_scaffold.dart';
 
 const double _kDividerHeadingHeight = 1.0; // front layer divider header height;
-const double _kFrontHeadingHeight = 20.0; // front layer circular rectangle
+const double _kFrontHeadingHeight = 16.0; // front layer circular rectangle
 const double _kFrontContainerHeight = 50.0;
 const double _kFrontClosedHeight = _kFrontContainerHeight +
     _kDividerHeadingHeight; // front layer height when closed
@@ -80,23 +81,25 @@ class _CrossFadeTransition extends AnimatedWidget {
 class Backdrop extends StatefulWidget {
   const Backdrop({
     this.floatingActionButton,
-    this.frontAction,
+    // this.frontAction,
     this.frontTitle,
     this.frontHeadingText,
     this.frontLayer,
     this.backTitle,
     this.backLayer,
     this.drawer,
+    this.endDrawer,
   });
 
   final Widget floatingActionButton;
-  final Widget frontAction;
+  // final Widget frontAction;
   final Widget frontTitle;
   final Widget frontLayer;
   final String frontHeadingText;
   final Widget backTitle;
   final Widget backLayer;
   final Widget drawer;
+  final Widget endDrawer;
 
   @override
   _BackdropState createState() => _BackdropState();
@@ -122,6 +125,7 @@ class _BackdropState extends State<Backdrop>
     );
     _frontOpacity = _controller.drive(_frontOpacityTween);
   }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -186,7 +190,7 @@ class _BackdropState extends State<Backdrop>
             animation: _controller,
             builder: (BuildContext context, Widget child) {
               return PhysicalShape(
-                elevation: 12.0,
+                elevation: 1.0,
                 color: Theme.of(context).canvasColor,
                 clipper: ShapeBorderClipper(
                   shape: RoundedRectangleBorder(
@@ -272,24 +276,32 @@ class _BackdropState extends State<Backdrop>
   @override
   Widget build(BuildContext context) {
     // print(_controller.status);
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      key: _backdropKey,
-      appBar: AppBar(
-        leading: widget.frontAction,
-        elevation: 0,
+    return Theme(
+      data: Theme.of(context)
+          .copyWith(scaffoldBackgroundColor: Theme.of(context).primaryColor),
+      child: ResponsiveScaffold(
+        // backgroundColor: Theme.of(context).primaryColor,
+        scaffoldKey: _backdropKey,
         title: _CrossFadeTransition(
           progress: _controller,
           alignment: AlignmentDirectional.centerStart,
           child0: Semantics(namesRoute: true, child: widget.frontTitle),
           child1: Semantics(namesRoute: true, child: widget.backTitle),
         ),
+        menuIcon: Icons.menu,
+        // Back layer
+        // floatingActionButton:
+        //     ScalingButton(widget: widget, controller: _controller),
+        drawer: widget.drawer, //todo
+        endDrawer: widget.endDrawer,
+        appBarElevation: 0,
+        floatingActionButton: ScalingButton(
+          fab: widget.floatingActionButton,
+          controller: _controller,
+        ),
+
+        body: LayoutBuilder(builder: _buildStack),
       ),
-      // Back layer
-      floatingActionButton:
-          ScalingButton(widget: widget, controller: _controller),
-      drawer: widget.drawer, //todo
-      body: LayoutBuilder(builder: _buildStack),
     );
   }
 }
@@ -297,11 +309,11 @@ class _BackdropState extends State<Backdrop>
 class ScalingButton extends StatefulWidget {
   const ScalingButton({
     Key key,
-    @required this.widget,
-    this.controller,
+    @required this.fab,
+    @required this.controller,
   }) : super(key: key);
 
-  final Backdrop widget;
+  final Widget fab;
   final AnimationController controller;
 
   @override
@@ -326,7 +338,7 @@ class _ScalingButtonState extends State<ScalingButton> {
   @override
   Widget build(BuildContext context) {
     return Transform.scale(
-      child: widget.widget.floatingActionButton,
+      child: widget.fab,
       scale: transformScale,
     );
   }
