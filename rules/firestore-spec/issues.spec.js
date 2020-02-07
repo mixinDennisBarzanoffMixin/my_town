@@ -4,6 +4,8 @@ describe('Tests the issues rules', () => {
   const issueId = 'test-issue'
   const userId = 'test-user'
   const issuePath = `issues/${issueId}`
+  const foreignIssuePath = `issues/foreign-issue`
+  const userPath = `users/${userId}`;
 
   afterAll(async () => {
     await teardown();
@@ -57,6 +59,43 @@ describe('Tests the issues rules', () => {
     const issueRef = db.doc(issuePath)
     await expect(issueRef.set({})).toBeDenied();
 
-    await expect(issueRef.set({ownerId: userId})).toBeAllowed();
+    await expect(issueRef.set({ ownerId: userId })).toBeAllowed();
+  });
+  test('Users should be able to delete their issues', async () => {
+    var mockUser = {
+      uid: userId
+    };
+    var mockData = {
+      [issuePath]: {
+        ownerId: userId
+      }
+    }
+    const db = await setup(mockUser, mockData);
+
+    const issueRef = db.doc(issuePath)
+    await expect(issueRef.delete()).toBeAllowed();
+
+    const foreignIssueRef = db.doc(foreignIssuePath);
+    await expect(foreignIssueRef.delete()).toBeDenied();
+  });
+
+  test('Admins should be able to delete issues', async () => {
+    var mockUser = {
+      uid: userId
+    };
+    var mockData = {
+      [userPath]: {
+        roles: {
+          admin: true
+        }
+      },
+      [issuePath]: {
+        ownerId: 'another-user'
+      }
+    }
+    const db = await setup(mockUser, mockData);
+
+    const issueRef = db.doc(issuePath)
+    await expect(issueRef.delete()).toBeAllowed();
   });
 });

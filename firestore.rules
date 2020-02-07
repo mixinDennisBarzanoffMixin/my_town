@@ -1,6 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
 
     match /issues/{issueId} {
 
@@ -15,6 +18,7 @@ service cloud.firestore {
       allow read;
       allow update: if isOwner();
       allow create: if isBeingCreatedByOwner();
+      allow delete: if isAdmin() || isOwner();
     }
 
     match /issue-votes/{voteId} {
@@ -25,7 +29,7 @@ service cloud.firestore {
         return request.resource.data.userId == request.auth.uid;
       }
       allow read;
-      allow update: if isOwner()
+      allow update: if isOwner();
       allow create: if isCreatingWithOwnData();
     }
 
@@ -36,12 +40,16 @@ service cloud.firestore {
       function isSignedIn() {
         return request.auth != null;
       }
-      function isOwnerOfId(userId) {
+      function isOwnerOf(userId) {
         return request.auth.uid == userId;
       }
+      function containsPriviliges() {
+        return request.resource.data.keys().hasAny(['roles']);
+      }
+      
       allow read;
-      allow update: if isOwnerOfExistingUser();
-      allow create: if isSignedIn() && isOwnerOfId(userId);
+      allow update: if isOwnerOfExistingUser() && (!containsPriviliges());
+      allow create: if isSignedIn() && isOwnerOf(userId) && (!containsPriviliges());
     }
   }
 }

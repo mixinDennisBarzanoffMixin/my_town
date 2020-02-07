@@ -22,6 +22,23 @@ class User {
           Location.fromGeoPoint(document['homeLocation']),
           document['photoUrl'],
           document['providerId'],
-          document['uid'],
+          document.documentID,
         );
+}
+
+class Admin extends User {
+  final bool isAdmin;
+  Admin.fromDocument(DocumentSnapshot document)
+      : isAdmin = document['roles']['admin'],
+        super.fromDocument(document);
+}
+
+extension UserUtils on DocumentSnapshot {
+  User toUser() {
+    if (this['roles'] != null) {
+      return Admin.fromDocument(this);
+    } else {
+      return User.fromDocument(this);
+    }
+  }
 }

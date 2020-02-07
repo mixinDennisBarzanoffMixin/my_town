@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_town/screens/fire_map/fire_map.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/screens/settings/bloc/settings_bloc.dart';
+import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
 import 'package:my_town/shared/drawer.dart';
@@ -14,7 +15,9 @@ import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:my_town/shared/user.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
+import 'package:provider/provider.dart';
 
 import 'filter_results_widget.dart';
 
@@ -38,7 +41,8 @@ class IssuesScreen extends StatelessWidget {
             // todo useless widgets
             width: double.infinity, // stretch to the parent width
             child: GridView.count(
-              padding: EdgeInsets.symmetric(horizontal: getIssuesGridGutter(context)),
+              padding: EdgeInsets.symmetric(
+                  horizontal: getIssuesGridGutter(context)),
               crossAxisCount: getIssueGridCount(context),
               crossAxisSpacing: getIssuesGridGutter(context),
               mainAxisSpacing: getIssuesGridGutter(context),
@@ -169,10 +173,7 @@ class _IssueCardState extends State<IssueCard> {
                         )
                       ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.more_vert),
-                      onPressed: () {}, // TODO add delete functionality
-                    )
+                    IssueOptionsButton(issue: widget.issue),
                   ],
                 ),
               ),
@@ -217,5 +218,51 @@ class _IssueCardState extends State<IssueCard> {
         ),
       ),
     );
+  }
+}
+
+enum IssueOptions {
+  delete,
+}
+
+class IssueOptionsButton extends StatelessWidget {
+  final IssuesDatabaseService _issuesDb = IssuesDatabaseService();
+  IssueOptionsButton({
+    Key key,
+    @required this.issue,
+  }) : super(key: key);
+
+  final IssueFetched issue;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton(
+      itemBuilder: (context) => [
+        if (canDeleteIssue(context)) ...[
+          PopupMenuItem(
+            child: Text('Delete'),
+            value: IssueOptions.delete,
+          ),
+        ],
+      ],
+      onSelected: (option) {
+        switch (option) {
+          case IssueOptions.delete:
+            _issuesDb.deleteIssueById(issue.id);
+            break;
+        }
+      },
+      icon: Icon(Icons.more_vert),
+    );
+  }
+
+  bool canDeleteIssue(BuildContext context) {
+    final user = Provider.of<User>(context, listen: false);
+    if (issue.ownerId == user.uid) {
+      return true;
+    } else if (user is Admin) {
+      return true;
+    }
+    return false;
   }
 }

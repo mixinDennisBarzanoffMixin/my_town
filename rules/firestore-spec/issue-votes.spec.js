@@ -2,6 +2,7 @@ const { setup, teardown } = require('./helpers');
 
 describe('Tests the issue-votes rules', () => {
     const userId = 'test-user'
+    const userPath = `users/${userId}`
 
     const issueId = 'test-issue'
     const issuePath = `issues/${issueId}`

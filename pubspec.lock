@@ -188,6 +188,18 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.3"
+  flutter_cupertino_localizations:
+    dependency: "direct main"
+    description:
+      name: flutter_cupertino_localizations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -282,6 +294,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3+1"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.16.1"
   js:
     dependency: transitive
     description:
@@ -376,12 +395,10 @@ packages:
   responsive_scaffold:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "59fe621e7acfc053258512e6c7e2b74cf0e0282b"
-      url: "https://github.com/DenisBarzanov/responsive_scaffold.git"
-    source: git
-    version: "1.2.0"
+      name: responsive_scaffold
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.3.0+1"
   rxdart:
     dependency: "direct main"
     description:

@@ -56,4 +56,17 @@ describe('Tests the user rules', () => {
 
         await expect(userRef.set({})).toBeAllowed();
     });
+
+    test('Users can\'t be created with admin priviliges', async () => {
+        const mockUser = {
+            uid: userId
+        };
+        const mockData = {}
+        const db = await setup(mockUser, mockData);
+
+        const userRef = db.doc(userPath)
+
+        await expect(userRef.set({ roles: { admin: true } })).toBeDenied();
+        await expect(userRef.set({})).toBeAllowed();
+    });
 });

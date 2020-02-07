@@ -13,7 +13,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<User>(context);
-
+    print(user);
     return Drawer(
       child: ListView(
         // Important: Remove any padding from the ListView.

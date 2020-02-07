@@ -13,9 +13,10 @@ class IssueFetched extends Equatable {
   final Location location;
   final int upvotes;
   final int downvotes;
+  final String ownerId;
 
   const IssueFetched(this.id, this.details, this.imageUrl, this.thumbnailUrl,
-      this.distance, this.location, this.upvotes, this.downvotes);
+      this.distance, this.location, this.upvotes, this.downvotes, this.ownerId);
 
   IssueFetched.fromGeoFireDocument(DocumentSnapshot document)
       : this(
@@ -27,6 +28,7 @@ class IssueFetched extends Equatable {
           Location.fromGeoPoint(document.data['position']['geopoint']),
           document.data['upvotes'],
           document.data['downvotes'],
+          document.data['ownerId'],
         );
 
   get hasThumbnail => this.thumbnailUrl != null;
@@ -37,7 +39,7 @@ class IssueFetched extends Equatable {
       details: $details,
     """;
     //       thumbnail: $thumbnailUrl,
-      // imageUrl: $imageUrl,
+    // imageUrl: $imageUrl,
   }
 
   @override
@@ -55,13 +57,14 @@ class IssueFetchedWithBytes extends IssueFetched {
     Location location,
     int upvotes,
     int downvotes,
+    String ownerId,
     this.imageBytes,
   ) : super(id, details, imageUrl, thumbnailUrl, distance, location, upvotes,
-            downvotes);
+            downvotes, ownerId);
 
   IssueFetchedWithBytes.fromIssueFetched(
       IssueFetched issueFetched, Uint8List imageBytes)
-      :this(
+      : this(
           issueFetched.id,
           issueFetched.details,
           issueFetched.imageUrl,
@@ -70,6 +73,7 @@ class IssueFetchedWithBytes extends IssueFetched {
           issueFetched.location,
           issueFetched.upvotes,
           issueFetched.downvotes,
+          issueFetched.ownerId,
           imageBytes,
         );
 }

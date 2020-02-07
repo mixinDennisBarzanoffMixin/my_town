@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:my_town/shared/user.dart';
 
 class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -16,6 +17,8 @@ class AuthService {
     print('initialised authservce');
     this.user$ = _auth.onAuthStateChanged
         .switchMap((firebaseUser) {
+          print('A new user signed in');
+          print(firebaseUser);
           if (firebaseUser != null) {
             return _db
                 .collection('users')
@@ -25,8 +28,11 @@ class AuthService {
             return Stream.value(null);
           }
         })
-        .map((doc) => doc != null ? User.fromDocument(doc) : null)
-        .doOnData(print);
+        .map((doc) => doc != null ? doc.toUser(): null)
+        .doOnData((val) {
+          // print('received user');
+          print(val);
+        });
   }
   static AuthService _instance = AuthService._internal();
 
@@ -40,7 +46,7 @@ class AuthService {
           ? _db.document('users/${firebaseUser.uid}').get()
           : null)
       .then((doc) => doc != null
-          ? User.fromDocument(doc)
+          ? doc.toUser()
           : null); // TODO duplicating and unnecessary logic
 
   Future<FirebaseUser> googleSignIn() async {
@@ -86,7 +92,7 @@ class AuthService {
 
     return userRef.setData({
       // update the user data in case it has changed
-      'uid': user.uid,
+      // 'uid': user.uid,
       'photoUrl': user.photoUrl,
       'displayName': user.displayName,
       'providerId': user.providerId,

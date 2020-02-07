@@ -36,4 +36,9 @@ class IssuesDatabaseService {
         .snapshots()
         .map((document) => IssueFetched.fromGeoFireDocument(document));
   }
+
+  Future<void> deleteIssueById(String id) {
+    var issueRef = _db.document('issues/$id');
+    return issueRef.delete();
+  }
 }
