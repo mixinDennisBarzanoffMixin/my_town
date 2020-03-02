@@ -14,9 +14,20 @@ class IssueFetched extends Equatable {
   final int upvotes;
   final int downvotes;
   final String ownerId;
+  final Map<String, String> _translatedDetails;
 
-  const IssueFetched(this.id, this.details, this.imageUrl, this.thumbnailUrl,
-      this.distance, this.location, this.upvotes, this.downvotes, this.ownerId);
+  const IssueFetched(
+    this.id,
+    this.details,
+    this.imageUrl,
+    this.thumbnailUrl,
+    this.distance,
+    this.location,
+    this.upvotes,
+    this.downvotes,
+    this.ownerId,
+    this._translatedDetails,
+  );
 
   IssueFetched.fromGeoFireDocument(DocumentSnapshot document)
       : this(
@@ -29,9 +40,14 @@ class IssueFetched extends Equatable {
           document.data['upvotes'],
           document.data['downvotes'],
           document.data['ownerId'],
+          document.data['details_translated'].cast<String, String>(),
         );
 
   get hasThumbnail => this.thumbnailUrl != null;
+
+  String translatedDetails(String locale) => _translatedDetails[locale];
+
+  String translatedDetailsOrDefault(String locale) => translatedDetails(locale) ?? details;
 
   @override
   String toString() {
@@ -58,9 +74,10 @@ class IssueFetchedWithBytes extends IssueFetched {
     int upvotes,
     int downvotes,
     String ownerId,
+    Map<String, String> detailTranslations,
     this.imageBytes,
   ) : super(id, details, imageUrl, thumbnailUrl, distance, location, upvotes,
-            downvotes, ownerId);
+            downvotes, ownerId, detailTranslations);
 
   IssueFetchedWithBytes.fromIssueFetched(
       IssueFetched issueFetched, Uint8List imageBytes)
@@ -74,6 +91,7 @@ class IssueFetchedWithBytes extends IssueFetched {
           issueFetched.upvotes,
           issueFetched.downvotes,
           issueFetched.ownerId,
+          issueFetched._translatedDetails,
           imageBytes,
         );
 }

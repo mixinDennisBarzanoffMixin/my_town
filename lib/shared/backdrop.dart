@@ -8,6 +8,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_scaffold/responsive_scaffold.dart';
 
+import 'i18n.dart';
+
 const double _kDividerHeadingHeight = 1.0; // front layer divider header height;
 const double _kFrontHeadingHeight = 16.0; // front layer circular rectangle
 const double _kFrontContainerHeight = 50.0;
@@ -226,13 +228,13 @@ class _BackdropState extends State<Backdrop>
                                 widget.frontHeadingText,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .subtitle1
+                                    .subhead
                                     .copyWith(color: Colors.grey),
                               ),
                             ),
                             IconButton(
                               onPressed: _toggleFrontLayer,
-                              tooltip: 'Toggle options page',
+                              tooltip: 'Toggle options'.i18n,
                               icon: RotationTransition(
                                 turns: Tween(begin: 0.0, end: 0.5)
                                     .animate(_controller),

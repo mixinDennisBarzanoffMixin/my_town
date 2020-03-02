@@ -41,18 +41,18 @@ class ReportIssueScreen extends StatefulWidget {
 }
 
 class _ReportIssueScreenState extends State<ReportIssueScreen> {
-  File _imageFile;
   final _formKey = GlobalKey<FormState>();
 
   final _textEditingController = TextEditingController();
-  Geoflutterfire geo = Geoflutterfire();
-
-  var locator = Geolocator();
+  final Geoflutterfire geo = Geoflutterfire();
+  final locator = Geolocator();
   final FirebaseStorage _storage =
       FirebaseStorage(storageBucket: 'gs://my-town-ba556.appspot.com');
-  Firestore _db = Firestore.instance;
-  IssuesDatabaseService _issuesDb = IssuesDatabaseService();
-  Geolocator _locator = Geolocator();
+  final Firestore _db = Firestore.instance;
+  final IssuesDatabaseService _issuesDb = IssuesDatabaseService();
+  final Geolocator _locator = Geolocator();
+
+  File _imageFile;
   StorageUploadTask _imageTask;
 
   bool _alreadySubmitted = false;
@@ -179,21 +179,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     }
   }
 
-  Future<String> _submitIssue(FormIssue issue) async {
-    final taskAndId = await _saveToDb(issue);
-    final imageTask = taskAndId.task;
-    var issueId = taskAndId.documentID;
-    imageTask.onComplete.then((_) => Navigator.pushReplacementNamed(
-          context,
-          '/issue_details',
-          arguments: issue,
-        ));
-    setState(() {
-      this._imageTask = imageTask;
-    });
-    return issueId;
-  }
-
   _submitIssueAndNavigateToIt(FormIssue issue) async {
     try {
       setState(() {
@@ -208,20 +193,19 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     }
   }
 
+  Future<String> _submitIssue(FormIssue issue) async {
+    final taskAndId = await _saveToDb(issue);
+    final imageTask = taskAndId.task;
+    var issueId = taskAndId.documentID;
+    setState(() {
+      this._imageTask = imageTask;
+    });
+    return issueId;
+  }
+
   /// Select an image via gallery or camera
   _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
-    // final labels = await labeler.processImage(FirebaseVisionImage.fromFile(selected));
-    // for (final label in labels) {
-    //   print('Image classified');
-    //   print('-------------');
-    //   print(label.text);
-    //   print(label.confidence);
-    //   print(label.entityId);
-    //   print('-------------');
-    // }
-
-    // await printExifOf(selected);
 
     if (selected != null) {
       // if the user exists the camera without picture -> null

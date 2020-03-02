@@ -26,10 +26,10 @@ class _FireMapState extends State<FireMap> {
   @override
   void initState() {
     super.initState();
-    final homeLocation = Provider.of<User>(context, listen: false).homeLocation;
+    final homeLocation = Provider.of<User>(context, listen: false)?.homeLocation;
     _initialLocation = homeLocation != null
         ? Future.value(homeLocation)
-        : _locator.getCurrentPosition(); // TODO: move logic elsewhere
+        : _locator.getCurrentPosition().then((it) => Location.fromPosition(it)); // TODO: move logic elsewhere
   }
 
   @override

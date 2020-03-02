@@ -4,6 +4,8 @@ import 'package:my_town/services/auth.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 
+import 'i18n.dart';
+
 class AppDrawer extends StatelessWidget {
   final AuthService _auth = AuthService();
 
@@ -35,10 +37,10 @@ class AppDrawer extends StatelessWidget {
                 Text(
                   user?.displayName != null
                       ? user.displayName
-                      : 'Helpful citizen',
+                      : 'Helpful citizen'.i18n,
                   style: Theme.of(context)
                       .textTheme // TODO: extract as a theme
-                      .subtitle1
+                      .subtitle
                       .copyWith(color: Colors.white),
                 ),
               ],
@@ -48,7 +50,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Settings'),
+            title: Text('Settings'.i18n),
             onTap: () {
               Navigator.of(context).pushNamed('/settings');
             },
@@ -56,14 +58,14 @@ class AppDrawer extends StatelessWidget {
           ...[
             if (user == null) // TODO: extract as a service method
               ListTile(
-                title: Text('Sign in'),
+                title: Text('Sign in'.i18n),
                 onTap: () {
                   this._auth.googleSignIn();
                 },
               )
             else
               ListTile(
-                title: Text('Sign out'),
+                title: Text('Sign out'.i18n),
                 onTap: () {
                   this._auth.signOut();
                 },

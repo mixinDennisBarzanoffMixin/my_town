@@ -18,8 +18,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:provider/provider.dart';
-
 import 'filter_results_widget.dart';
+import 'package:i18n_extension/i18n_widget.dart';
+import 'i18n.dart';
 
 extension on GeoPoint {
   // firestore point to latlng
@@ -31,12 +32,16 @@ class IssuesScreen extends StatelessWidget {
 
   @override
   build(context) {
+    Locale myLocale = Localizations.localeOf(context);
+    print(myLocale.countryCode);
+    print(myLocale.languageCode);
+    print(myLocale.toLanguageTag());
     return BlocBuilder<IssuesBloc, IssuesState>(
       builder: (context, state) {
         print('state');
         print(state);
         return Backdrop(
-          frontTitle: Text('Issues in your area'),
+          frontTitle: Text('Issues in your area'.i18n),
           frontLayer: SizedBox(
             // todo useless widgets
             width: double.infinity, // stretch to the parent width
@@ -56,9 +61,9 @@ class IssuesScreen extends StatelessWidget {
             ),
           ),
           frontHeadingText: state is IssuesLoadedState
-              ? '${state.issues.length} issues'
-              : 'Issues',
-          backTitle: Text('Options'),
+              ? 'N issues'.plural(state.issues.length)
+              : 'N issues'.plural(0),
+          backTitle: Text('Options'.i18n),
           backLayer: Builder(
             builder: (context) {
               return BlocBuilder<SettingsBloc, SettingsState>(
@@ -210,7 +215,7 @@ class _IssueCardState extends State<IssueCard> {
                 ),
               ),
               Container(
-                child: Text(widget.issue.details),
+                child: Text(widget.issue.translatedDetailsOrDefault(I18n.language)),
                 padding: EdgeInsets.symmetric(vertical: 10),
               ),
             ],
@@ -240,7 +245,7 @@ class IssueOptionsButton extends StatelessWidget {
       itemBuilder: (context) => [
         if (canDeleteIssue(context)) ...[
           PopupMenuItem(
-            child: Text('Delete'),
+            child: Text('Delete'.i18n),
             value: IssueOptions.delete,
           ),
         ],

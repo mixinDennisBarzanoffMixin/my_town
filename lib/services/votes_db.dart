@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_town/screens/issues/issue-detail/vote.dart';
+import 'package:my_town/screens/issues/issue-details/vote.dart';
 
 class VotesDatabaseService {
   Firestore _db = Firestore.instance;

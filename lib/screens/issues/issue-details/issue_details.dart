@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_town/screens/issues/issue-detail/vote.dart';
+import 'package:i18n_extension/i18n_widget.dart';
+import 'package:my_town/screens/issues/issue-details/vote.dart';
 import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/services/votes_db.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
@@ -7,6 +8,8 @@ import 'package:my_town/shared/progress_indicator.dart';
 import 'package:my_town/shared/user.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:provider/provider.dart';
+
+import 'i18n.dart';
 
 class IssueDetailScreen extends StatefulWidget {
   const IssueDetailScreen({
@@ -21,12 +24,14 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
   IssuesDatabaseService _issuesDb = IssuesDatabaseService();
   Stream<IssueFetchedWithBytes> issue$;
   Stream<UserVote> userVote$;
+  bool isLoggedIn() => Provider.of<User>(context) != null;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final userId = Provider.of<User>(context).uid;
+    final userId = Provider.of<User>(context)?.uid;
+    
     final IssueFetched issue = ModalRoute.of(context).settings.arguments;
-    userVote$ = _votesDb.getUserVote(userId, issue.id);
+    userVote$ = isLoggedIn() ? _votesDb.getUserVote(userId, issue.id) : null;
     issue$ = _issuesDb.getIssueById(issue.id).asyncMap(
           (issue) async => IssueFetchedWithBytes.fromIssueFetched(
             issue,
@@ -42,7 +47,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
     final userId = Provider.of<User>(context).uid;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Issue Details"),
+        title: Text('Issue Details'.i18n),
       ),
       body: StreamBuilder<IssueFetched>(
         initialData: issue,
@@ -92,7 +97,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
                             icon: Icons.thumb_up,
                             totalVoteCount: issue.upvotes ?? 0,
                             color: redWhen(isUpvote),
-                            onPressed: () {
+                            onPressed: !isLoggedIn() ? null : () {
                               final newVote = vote == UserVote.Unvoted ||
                                       vote == UserVote.Downvoted
                                   ? UserVote.Upvoted
@@ -107,7 +112,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
                             icon: Icons.thumb_down,
                             totalVoteCount: issue.downvotes ?? 0,
                             color: redWhen(isDownvote),
-                            onPressed: () {
+                            onPressed: !isLoggedIn() ? null : () {
                               final newVote = vote == UserVote.Unvoted ||
                                       vote == UserVote.Upvoted
                                   ? UserVote.Downvoted
@@ -123,7 +128,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
                 ),
                 Padding(
                   padding: EdgeInsets.all(20.0),
-                  child: Text(issue.details),
+                  child: Text(issue.translatedDetailsOrDefault(I18n.language)),
                 ),
               ],
             );
