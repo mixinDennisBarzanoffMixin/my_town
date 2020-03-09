@@ -25,7 +25,7 @@ export const addGeneratedThumbnailToDocument = functions.storage
     if (file.name && /image_180x180.jpg/.test(file.name)) { // apply only to thumbnails
       // console.log(file.name)
       // Note if file gets uploaded from here -> infinite recursion!
-      
+
       // issues/thumbnails/issueId_180x180.jpg -> 
       // ['issues/thumbnails/issueId_180x180.jpg', ' issueId']
       const issueId = /(.*)\/image_180x180.jpg/.exec(file.name)![1] // second is the match
@@ -45,7 +45,7 @@ export const addGeneratedThumbnailToDocument = functions.storage
       const issueRef = db.doc(`issues/${issueId}`)
       const projectId = admin.instanceId().app.options.projectId
       console.log(projectId)
-      
+
       const thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/${projectId}.appspot.com/o/${encodeURIComponent(file.name)}?alt=media&token=${token}`
       return await issueRef.set({ thumbnailUrl }, { merge: true })
       // add the thumbnail non-destructively

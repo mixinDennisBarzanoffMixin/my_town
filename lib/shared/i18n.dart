@@ -21,6 +21,10 @@ extension Localisations on String {
       {
         'en': 'Sign out',
         'bg': 'Излез',
+      } +
+      {
+        'en': 'Achievemnts',
+        'bg': 'Постижения',
       };
 
   get i18n => localize(this, translations);

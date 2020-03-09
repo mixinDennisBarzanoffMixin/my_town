@@ -71,6 +71,12 @@ class AppDrawer extends StatelessWidget {
                 },
               ),
           ],
+          ListTile(
+            title: Text('Achievements'.i18n),
+            onTap: () {
+              Navigator.of(context).pushNamed('/achievements');
+            }
+          )
         ],
       ),
     );

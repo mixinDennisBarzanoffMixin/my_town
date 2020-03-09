@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:my_town/screens/achievements/achievements.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/screens/issues/issues.dart';
 import 'package:my_town/screens/screens.dart';
@@ -33,11 +34,12 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         initialRoute: '/issues',
         routes: {
-          '/issues': (context) => I18n(child: IssuesScreen()),
-          '/login': (context) => I18n(child: LoginScreen()),
+          '/issues':        (context) => I18n(child: IssuesScreen()),
+          '/login':         (context) => I18n(child: LoginScreen()),
           '/issue_details': (context) => I18n(child: IssueDetailScreen()),
-          '/report_issue': (context) => I18n(child: ReportIssueScreen()),
-          '/settings': (context) => I18n(child: SettingsScreen()),
+          '/report_issue':  (context) => I18n(child: ReportIssueScreen()),
+          '/settings':      (context) => I18n(child: SettingsScreen()),
+          '/achievements':  (context) => I18n(child: AchievementsScreen()),
         },
         localizationsDelegates: [
           // ... app-specific localization delegate[s] here

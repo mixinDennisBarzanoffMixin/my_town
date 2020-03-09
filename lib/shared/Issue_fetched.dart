@@ -40,7 +40,7 @@ class IssueFetched extends Equatable {
           document.data['upvotes'],
           document.data['downvotes'],
           document.data['ownerId'],
-          document.data['details_translated'].cast<String, String>(),
+          document.data['details_translated']?.cast<String, String>(),
         );
 
   get hasThumbnail => this.thumbnailUrl != null;

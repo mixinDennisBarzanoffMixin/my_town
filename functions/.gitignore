@@ -10,3 +10,5 @@ node_modules/
 
 service-account.json
 test/service-account.json
+
+google_private_key.json

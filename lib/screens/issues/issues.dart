@@ -1,10 +1,14 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_town/screens/fire_map/fire_map.dart';
 import 'package:my_town/screens/issues/bloc/bloc.dart';
 import 'package:my_town/screens/settings/bloc/settings_bloc.dart';
+import 'package:my_town/services/auth.dart';
 import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/backdrop.dart';
@@ -27,19 +31,71 @@ extension on GeoPoint {
   LatLng toLatLng() => LatLng(this.latitude, this.longitude);
 }
 
-class IssuesScreen extends StatelessWidget {
-  final Geolocator locator = Geolocator();
+class IssuesScreen extends StatefulWidget {
+  @override
+  _IssuesScreenState createState() => _IssuesScreenState();
+}
+
+class _IssuesScreenState extends State<IssuesScreen> {
+  final locator = Geolocator();
+  final _db = Firestore();
+  final _fcm = FirebaseMessaging();
+  final _auth = AuthService();
+
+  StreamSubscription iosSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    if (Platform.isIOS) {
+      iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
+        _saveDeviceToken();
+      });
+
+      _fcm.requestNotificationPermissions(IosNotificationSettings());
+    } else {
+      _saveDeviceToken();
+    }
+    print('INITIALIZING FCM');
+    _fcm.configure( // Called twice on stable
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: ListTile(
+              title: Text(message['notification']['title']),
+              subtitle: Text(message['notification']['body']),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/achievements',
+                      arguments: message['data']['achievement'],
+                    );
+                  }),
+            ],
+          ),
+        );
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        // TODO optional
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        // TODO optional
+      },
+    );
+  }
 
   @override
   build(context) {
-    Locale myLocale = Localizations.localeOf(context);
-    print(myLocale.countryCode);
-    print(myLocale.languageCode);
-    print(myLocale.toLanguageTag());
     return BlocBuilder<IssuesBloc, IssuesState>(
       builder: (context, state) {
-        print('state');
-        print(state);
         return Backdrop(
           frontTitle: Text('Issues in your area'.i18n),
           frontLayer: SizedBox(
@@ -115,6 +171,41 @@ class IssuesScreen extends StatelessWidget {
       case ScreenSize.large:
         return 24;
     }
+  }
+
+  /// Get the token, save it to the database for current user
+  _saveDeviceToken() async {
+    // Get the current user
+    print('updating');
+    final user =
+        await _auth.getUser; // wait for the user. don't just check for them
+    print(user);
+    String uid = user?.uid;
+    // FirebaseUser user = await _auth.currentUser();
+
+    // Get the token for this device
+    String fcmToken = await _fcm.getToken();
+
+    // Save it to Firestore
+    if (fcmToken != null) {
+      var tokens = _db
+          .collection('users')
+          .document(uid)
+          .collection('tokens')
+          .document(fcmToken);
+
+      await tokens.setData({
+        'token': fcmToken,
+        'createdAt': FieldValue.serverTimestamp(), // optional
+        'platform': Platform.operatingSystem // optional
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    iosSubscription?.cancel();
+    super.dispose();
   }
 }
 
@@ -215,7 +306,8 @@ class _IssueCardState extends State<IssueCard> {
                 ),
               ),
               Container(
-                child: Text(widget.issue.translatedDetailsOrDefault(I18n.language)),
+                child: Text(
+                    widget.issue.translatedDetailsOrDefault(I18n.language)),
                 padding: EdgeInsets.symmetric(vertical: 10),
               ),
             ],
