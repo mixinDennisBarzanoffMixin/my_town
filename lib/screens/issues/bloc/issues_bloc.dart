@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:my_town/services/auth.dart';
@@ -7,7 +8,9 @@ import 'package:my_town/services/issues_db.dart';
 import 'package:my_town/shared/Issue_fetched.dart';
 import 'package:my_town/shared/location.dart';
 import 'package:rxdart/rxdart.dart';
-import './bloc.dart';
+
+part 'issues_event.dart';
+part 'issues_state.dart';
 
 const _defaultRadius = 5.0;
 
@@ -67,9 +70,11 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
     }
   }
 
+  /// `events` is the event subject
+  /// [mapEventToState] is passed as `next` by the library
   @override
   Stream<IssuesState> transformEvents(events, next) {
-    // The stream never ends so asyncMap doesn't work,
+    // The stream never ends so the default asyncMap doesn't work,
     // we need to switch to the new Stream values when they appear
     return events
         .debounceTime(

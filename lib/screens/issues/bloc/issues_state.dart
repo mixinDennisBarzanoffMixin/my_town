@@ -1,6 +1,4 @@
-import 'package:meta/meta.dart';
-import 'package:my_town/shared/Issue_fetched.dart';
-import 'package:my_town/shared/location.dart';
+part of 'issues_bloc.dart';
 
 @immutable
 abstract class IssuesState {

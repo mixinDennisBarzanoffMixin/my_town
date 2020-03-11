@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_town/screens/issues/bloc/bloc.dart';
+import 'package:my_town/screens/issues/bloc/issues_bloc.dart';
 
 class FilterResults extends StatelessWidget {
   const FilterResults({

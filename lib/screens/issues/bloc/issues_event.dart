@@ -1,7 +1,5 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:meta/meta.dart';
+part of 'issues_bloc.dart';
 
-@immutable
 abstract class IssuesEvent {
   const IssuesEvent();
 }

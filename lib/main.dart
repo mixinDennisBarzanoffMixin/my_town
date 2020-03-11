@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_town/screens/achievements/achievements.dart';
-import 'package:my_town/screens/issues/bloc/bloc.dart';
+import 'package:my_town/screens/issues/bloc/issues_bloc.dart';
 import 'package:my_town/screens/issues/issues.dart';
 import 'package:my_town/screens/screens.dart';
 import 'package:my_town/screens/settings/bloc/settings_bloc.dart';

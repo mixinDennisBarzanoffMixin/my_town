@@ -6,7 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_town/screens/fire_map/fire_map.dart';
-import 'package:my_town/screens/issues/bloc/bloc.dart';
+import 'package:my_town/screens/issues/bloc/issues_bloc.dart';
 import 'package:my_town/screens/settings/bloc/settings_bloc.dart';
 import 'package:my_town/services/auth.dart';
 import 'package:my_town/services/issues_db.dart';
