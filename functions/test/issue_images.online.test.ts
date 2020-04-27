@@ -3,11 +3,10 @@ import { admin, testEnv } from './test.config'
 import { addGeneratedThumbnailToDocument } from '../src/issue_image'
 import * as fs from 'fs';
 import { uuid } from 'uuidv4'
-import { WrappedFunction } from 'firebase-functions-test/lib/main'
 import fetch from 'node-fetch'
 
 describe('Tests the issue image cloud functions', () => {
-    let wrappedAddGeneratedThumbnail: WrappedFunction
+    let wrappedAddGeneratedThumbnail: any
     const issueId = uuid()
     const bucket = admin.storage().bucket()
     const db = admin.firestore();
@@ -17,7 +16,7 @@ describe('Tests the issue image cloud functions', () => {
     const imageFilename = `${issueId}/image.jpg`
 
     beforeEach(async () => {
-        await issueRef.set({}) // Warning: Use a testing project where no cloud functions can interfere
+        await issueRef.set({})
         wrappedAddGeneratedThumbnail = testEnv.wrap(addGeneratedThumbnailToDocument)
         await bucket.upload(__dirname + '/assets/test_image.jpg', { destination: thumbnailFilename })
         await bucket.upload(__dirname + '/assets/test_image.jpg', { destination: imageFilename })

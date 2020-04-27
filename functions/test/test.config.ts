@@ -24,3 +24,5 @@ const testEnv = functions({
 testEnv.mockConfig({});
 
 export {admin, testEnv}
+// export const uninitializedAdmin.
+export {uninitializedAdmin as firebase}

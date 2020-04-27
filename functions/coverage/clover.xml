@@ -1,90 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1580316708455" clover="3.2.0">
-  <project timestamp="1580316708456" name="All files">
-    <metrics statements="70" coveredstatements="70" conditionals="58" coveredconditionals="49" methods="9" coveredmethods="9" elements="137" coveredelements="128" complexity="0" loc="70" ncloc="70" packages="2" files="3" classes="3"/>
+<coverage generated="1584067676595" clover="3.2.0">
+  <project timestamp="1584067676596" name="All files">
+    <metrics statements="35" coveredstatements="35" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="6" elements="45" coveredelements="44" complexity="0" loc="35" ncloc="35" packages="2" files="3" classes="3"/>
     <package name="src">
-      <metrics statements="62" coveredstatements="62" conditionals="58" coveredconditionals="49" methods="9" coveredmethods="9"/>
-      <file name="issue_image.ts" path="/home/denisbarzanov2002/FlutterProjects/my_town/functions/src/issue_image.ts">
-        <metrics statements="23" coveredstatements="23" conditionals="4" coveredconditionals="4" methods="2" coveredmethods="2"/>
-        <line num="1" count="2" type="stmt"/>
-        <line num="2" count="2" type="stmt"/>
-        <line num="4" count="2" type="stmt"/>
-        <line num="7" count="2" type="stmt"/>
-        <line num="8" count="2" type="stmt"/>
-        <line num="9" count="2" type="stmt"/>
-        <line num="11" count="2" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-        <line num="19" count="1" type="stmt"/>
-        <line num="22" count="2" type="stmt"/>
-        <line num="25" count="2" type="cond" truecount="4" falsecount="0"/>
+      <metrics statements="26" coveredstatements="26" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="6"/>
+      <file name="helpers.ts" path="/home/denisbarzanov2002/FlutterProjects/my_town/functions/src/helpers.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+      </file>
+      <file name="mapping.ts" path="/home/denisbarzanov2002/FlutterProjects/my_town/functions/src/mapping.ts">
+        <metrics statements="20" coveredstatements="20" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="6"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="29" count="4" type="stmt"/>
         <line num="31" count="1" type="stmt"/>
-        <line num="33" count="1" type="stmt"/>
         <line num="34" count="1" type="stmt"/>
-        <line num="42" count="1" type="stmt"/>
-        <line num="45" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="41" count="2" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
         <line num="46" count="1" type="stmt"/>
         <line num="47" count="1" type="stmt"/>
-        <line num="49" count="1" type="stmt"/>
-        <line num="50" count="1" type="stmt"/>
-        <line num="53" count="1" type="stmt"/>
-      </file>
-      <file name="votes.ts" path="/home/denisbarzanov2002/FlutterProjects/my_town/functions/src/votes.ts">
-        <metrics statements="39" coveredstatements="39" conditionals="54" coveredconditionals="45" methods="7" coveredmethods="7"/>
-        <line num="1" count="2" type="stmt"/>
-        <line num="2" count="2" type="stmt"/>
-        <line num="4" count="2" type="stmt"/>
-        <line num="6" count="2" type="stmt"/>
-        <line num="7" count="7" type="stmt"/>
-        <line num="8" count="7" type="stmt"/>
-        <line num="9" count="7" type="cond" truecount="3" falsecount="1"/>
-        <line num="11" count="7" type="cond" truecount="3" falsecount="1"/>
-        <line num="12" count="7" type="cond" truecount="3" falsecount="1"/>
-        <line num="32" count="7" type="cond" truecount="8" falsecount="2"/>
-        <line num="33" count="7" type="cond" truecount="8" falsecount="2"/>
-        <line num="34" count="7" type="cond" truecount="6" falsecount="2"/>
-        <line num="35" count="7" type="stmt"/>
-        <line num="37" count="7" type="stmt"/>
-        <line num="38" count="7" type="stmt"/>
-        <line num="40" count="7" type="stmt"/>
-        <line num="42" count="7" type="stmt"/>
-        <line num="43" count="7" type="cond" truecount="2" falsecount="0"/>
-        <line num="44" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="45" count="1" type="stmt"/>
-        <line num="47" count="1" type="stmt"/>
-        <line num="49" count="5" type="cond" truecount="2" falsecount="0"/>
-        <line num="50" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="51" count="1" type="stmt"/>
-        <line num="53" count="1" type="stmt"/>
-        <line num="55" count="3" type="cond" truecount="2" falsecount="0"/>
-        <line num="56" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="57" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="60" count="7" type="stmt"/>
-        <line num="64" count="2" type="stmt"/>
-        <line num="65" count="2" type="stmt"/>
-        <line num="66" count="2" type="stmt"/>
-        <line num="67" count="2" type="stmt"/>
-        <line num="70" count="2" type="stmt"/>
-        <line num="71" count="1" type="stmt"/>
-        <line num="72" count="1" type="stmt"/>
-        <line num="75" count="2" type="stmt"/>
-        <line num="76" count="1" type="stmt"/>
-        <line num="77" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
       </file>
     </package>
     <package name="test">
-      <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="test.config.ts" path="/home/denisbarzanov2002/FlutterProjects/my_town/functions/test/test.config.ts">
-        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="4" type="stmt"/>
-        <line num="2" count="4" type="stmt"/>
-        <line num="4" count="4" type="stmt"/>
-        <line num="6" count="4" type="stmt"/>
-        <line num="12" count="4" type="stmt"/>
-        <line num="19" count="4" type="stmt"/>
-        <line num="24" count="4" type="stmt"/>
-        <line num="26" count="4" type="stmt"/>
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
       </file>
     </package>
   </project>

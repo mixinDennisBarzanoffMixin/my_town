@@ -2,11 +2,8 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin'
 
 import { uuid } from 'uuidv4'
-// import { basename } from 'path'
+import { bucket, db } from './helpers';
 
-const defaultStorage = admin.storage()
-const bucket = defaultStorage.bucket()
-const db = admin.firestore()
 // todo rename function
 export const removeIssueImagesAfterDeleting = functions.firestore
   .document('issues/{issueId}')

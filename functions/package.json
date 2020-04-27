@@ -2,13 +2,14 @@
   "name": "functions",
   "scripts": {
     "lint": "tslint --project tsconfig.json",
-    "build": "tsc",
+    "build": "tsc -p tsconfig-build.json",
     "serve": "npm run build && firebase serve --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
+    "emulate": "npm run build && firebase emulators:start --inspect-functions",
     "logs": "firebase functions:log",
-    "test": "jest --watchAll --coverage"
+    "test": "jest --watchAll --coverage --runInBand"
   },
   "engines": {
     "node": "8"
@@ -17,9 +18,11 @@
   "dependencies": {
     "firebase-admin": "^8.6.0",
     "firebase-functions": "^3.3.0",
+    "kd-tree-javascript": "^1.0.3",
     "uuidv4": "^6.0.0"
   },
   "devDependencies": {
+    "@types/kd-tree-javascript": "^1.0.0",
     "@types/node-fetch": "^2.5.4",
     "@types/jest": "^24.0.25",
     "@types/promisify-node": "^0.4.0",

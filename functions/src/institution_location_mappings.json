@@ -1,0 +1,20 @@
+{
+    "municipality": [
+        {
+            "name": "Municipality of Kostinbrod",
+            "location": {
+                "lat": 42.707420,
+                "lng": 23.316600
+            },
+            "phoneNumber": "+359 721 66 661"
+        },
+        {
+            "name": "Mladost District of Sofia",
+            "location": {
+                "lat": 42.640430,
+                "lng": 23.377790
+            },
+            "phoneNumber": "02 974 6230"
+        }
+    ]
+}

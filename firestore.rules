@@ -55,5 +55,8 @@ service cloud.firestore {
         allow read, write: if isOwnerOf(userId)
       }
     }
+    match /issue_mapping/{issueId} {
+        allow read;
+    }
   }
 }

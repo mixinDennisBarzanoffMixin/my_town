@@ -1,0 +1,17 @@
+[
+    {
+        "name": "police",
+        "causes": [
+            "wronglyParked",
+            "violentIndividual"
+        ]
+    },
+    {
+        "name": "municipality",
+        "causes": [
+            "potHole",
+            "brokenStreetLamp",
+            "dangerousTree"
+        ]
+    }
+]

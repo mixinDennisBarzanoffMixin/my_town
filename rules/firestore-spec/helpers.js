@@ -8,7 +8,7 @@ module.exports.setup = async (auth, data) => {
         auth
     });
 
-    // Apply no rules
+    // First apply no rules so as to seed the database with the mock data
     await firebase.loadFirestoreRules({
         projectId,
         rules: fs.readFileSync(__dirname + '/../allow_all.rules', 'utf8')

@@ -8,6 +8,35 @@
             "name": "Flutter",
             "request": "launch",
             "type": "dart"
+        },
+        // {
+        //     "type": "node",
+        //     "request": "attach",
+        //     "name": "Functions",
+        //     "port": 9229,
+        //     "restart": true,
+        //     "skipFiles": [
+        //         "<node_internals>/**"
+        //     ]
+        // },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Tests",
+            "program": "${workspaceRoot}/functions/node_modules/jest/bin/jest.js",
+            "args": [
+                "-i", 
+                "--config",
+                "${workspaceRoot}/functions/jest.config.js",
+                "${fileBasenameNoExtension}",
+                "--runInBand"
+            ],
+            // "preLaunchTask": "build",
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "${workspaceRoot}/dist/**/*"
+            ],
+            // "envFile": "${workspaceRoot}/.env"
         }
     ]
 }

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll"
+    "test": "jest firestore-spec && node storage-spec/*"
   },
   "keywords": [],
   "author": "",

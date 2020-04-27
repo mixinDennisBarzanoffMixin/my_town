@@ -1,7 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-
-const db = admin.firestore();
+import { db } from './helpers';
 
 export const votesAggregate = functions.firestore.document('issue-votes/{issueVoteId}').onWrite(async (change, context) => {
     const afterData = change.after.data();

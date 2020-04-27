@@ -1,10 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-
-const db = admin.firestore()
-const fcm = admin.messaging();
-
-const FieldValue = admin.firestore.FieldValue;
+import { db, FieldValue, fcm } from './helpers';
 
 export const increaseIssuesCount = functions.firestore
     .document('issues/{issueId}')
