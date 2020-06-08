@@ -23,7 +23,7 @@ extension Localisations on String {
         'bg': 'Излез',
       } +
       {
-        'en': 'Achievemnts',
+        'en': 'Achievements',
         'bg': 'Постижения',
       };
 
