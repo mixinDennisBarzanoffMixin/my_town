@@ -40,7 +40,7 @@ class AppDrawer extends StatelessWidget {
                       : 'Helpful citizen'.i18n,
                   style: Theme.of(context)
                       .textTheme // TODO: extract as a theme
-                      .subtitle
+                      .subtitle2
                       .copyWith(color: Colors.white),
                 ),
               ],
