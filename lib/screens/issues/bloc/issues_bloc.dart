@@ -73,7 +73,7 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
   /// `events` is the event subject
   /// [mapEventToState] is passed as `next` by the library
   @override
-  Stream<IssuesState> transformEvents(events, next) {
+  Stream<Transition<IssuesEvent, IssuesState>> transformEvents(events, next) {
     // The stream never ends so the default asyncMap doesn't work,
     // we need to switch to the new Stream values when they appear
     return events
@@ -84,10 +84,11 @@ class IssuesBloc extends Bloc<IssuesEvent, IssuesState> {
         .switchMap(next);
   }
 
+
   @override
-  Stream<IssuesState> transformStates(Stream<IssuesState> states) {
+  Stream<Transition<IssuesEvent, IssuesState>> transformTransitions(Stream<Transition<IssuesEvent, IssuesState>> transitions) {
     // we only need the latest event, not all of them
-    return states.shareReplay(maxSize: 1);
+    return transitions.shareReplay(maxSize: 1);
   }
 
   Stream<IssuesLoadedState> getIssuesLoadedStatesStream(double radius,
