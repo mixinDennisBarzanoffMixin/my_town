@@ -45,7 +45,7 @@ class IssueFetched extends Equatable {
 
   get hasThumbnail => this.thumbnailUrl != null;
 
-  String translatedDetails(String locale) => _translatedDetails[locale];
+  String translatedDetails(String locale) => _translatedDetails == null ? null : _translatedDetails[locale];
 
   String translatedDetailsOrDefault(String locale) => translatedDetails(locale) ?? details;
 
