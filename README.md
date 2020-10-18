@@ -11,11 +11,8 @@ some cleaning company could see and fix it. The municipality could pay the
 users for citizen control. Firebase, which has a fairly generous free tier, was
 used for the realisation of the app.
 
-
-<figure >
-  <img src="https://i.imgur.com/S04Z0FU.png" />
-  <figcaption>fig 2.1 Application arcitecture</figcaption>
-</figure>
+fig 2.1 Application arcitecture
+<img src="https://i.imgur.com/S04Z0FU.png" />
 
 The application is made “non-profit”. Because managing a system like this one
 isn’t free, there needs to be some sort of funding. This is because the
@@ -71,7 +68,7 @@ invest a minute of their time to report an issue.
 
 1.1. Existing Technologies and Realisations
 
-<img src="https://i.imgur.com/KXl4eCR.png" />
+<img src="https://i.imgur.com/cfTC0H3.png" />
 
 “Citizens” is the only existing realisation of this idea that was found. The CEO
 of this application is from Bulgaria, who was talked to before the development
