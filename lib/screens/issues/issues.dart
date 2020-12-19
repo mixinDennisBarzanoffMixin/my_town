@@ -57,26 +57,29 @@ class _IssuesScreenState extends State<IssuesScreen> {
       _saveDeviceToken();
     }
     print('INITIALIZING FCM');
-    _fcm.configure( // Called twice on stable
+    _fcm.configure(
+      // Called twice on stable
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
+        // await Future.delayed(const Duration(seconds: 5), () => "1");
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             content: ListTile(
-              title: Text(message['notification']['title']),
-              subtitle: Text(message['notification']['body']),
+              title: Text(dynamicI18n(message['notification']['title'])),
+              subtitle: Text(dynamicI18n(message['notification']['body'])),
             ),
             actions: <Widget>[
               FlatButton(
-                  child: Text('Ok'),
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/achievements',
-                      arguments: message['data']['achievement'],
-                    );
-                  }),
+                child: Text('Ok'),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    '/achievements',
+                    arguments: message['data']['achievement'],
+                  );
+                },
+              ),
             ],
           ),
         );
@@ -187,6 +190,7 @@ class _IssuesScreenState extends State<IssuesScreen> {
     String fcmToken = await _fcm.getToken();
 
     // Save it to Firestore
+    // TODO user id might be null
     if (fcmToken != null) {
       var tokens = _db
           .collection('users')

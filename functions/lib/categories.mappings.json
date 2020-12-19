@@ -1,15 +1,17 @@
 [
     {
-        "name": "Roads",
-        "institutions": [
-            "Road Fixing Institution",
-            "Street Control Institution"
+        "name": "police",
+        "causes": [
+            "wronglyParked",
+            "violentIndividual"
         ]
     },
     {
-        "name": "Parking",
-        "institutions": [
-            "Parking Institution"
+        "name": "municipality",
+        "causes": [
+            "potHole",
+            "brokenStreetLamp",
+            "dangerousTree"
         ]
     }
 ]

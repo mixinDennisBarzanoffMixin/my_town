@@ -36,8 +36,8 @@ describe('Issue mappings are working properly', () => {
         await wrappedMapIssue(change, { params: { issueId } })
 
         const mappingDoc = await mappingRef.get()
-        const {institutionType, institution} = mappingDoc.data()!!;
+        const { institutionType, institution } = mappingDoc.data()!!;
         expect(institutionType).toEqual("municipality")
-        expect(institution.name).toEqual("Mladost District of Sofia")        
+        expect(institution.name).toEqual("Mladost District of Sofia")
     })
 })

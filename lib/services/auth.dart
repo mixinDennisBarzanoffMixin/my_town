@@ -64,6 +64,7 @@ class AuthService {
           credential); // todo use link with credential instead
       FirebaseUser user = authResult.user;
 
+      print('got new user');
       // updateUserData(user);
       print(user);
       // tried listening to the real user, but too hard

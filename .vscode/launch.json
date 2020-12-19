@@ -20,12 +20,18 @@
         //     ]
         // },
         {
+            "name": "Web",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "chrome"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Jest Tests",
             "program": "${workspaceRoot}/functions/node_modules/jest/bin/jest.js",
             "args": [
-                "-i", 
+                "-i",
                 "--config",
                 "${workspaceRoot}/functions/jest.config.js",
                 "${fileBasenameNoExtension}",

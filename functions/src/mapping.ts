@@ -6,7 +6,7 @@ import { kdTree } from 'kd-tree-javascript'
 import admin from 'firebase-admin';
 // import admin from 'firebase-admin';
 
-declare module Institution_Mappings {
+namespace Institution_Mappings {
 
     export interface Location {
         lat: number;
@@ -24,23 +24,23 @@ declare module Institution_Mappings {
     }
 }
 
-var locations = institution_location_mappings.municipality.map((mun) => mun.location);
+const locations = institution_location_mappings.municipality.map((mun) => mun.location);
 function distance(a: Institution_Mappings.Location, b: Institution_Mappings.Location) {
     return Math.pow(a.lat - b.lat, 2) + Math.pow(a.lng - b.lng, 2)
 }
-var tree = new kdTree(locations, distance, ["lat", "lng"])
+const tree = new kdTree(locations, distance, ["lat", "lng"])
 
 
 export const mapCategoryToInstitution = functions.firestore
     .document('issues/{issueId}') // TODO: write to issue_mapping
     .onWrite(async (change, context) => {
         const issue = change.after
-        const data = change.after.data()!!
-        const category = data.category
+        const data = change.after.data()
+        const category = data!!.category
         const institution = mappings.find(
-            (institution) => institution.causes.includes(category)
+            (institution_mapping) => institution_mapping.causes.includes(category)
         )
-        const issueLocation: admin.firestore.GeoPoint = data.position.geopoint;
+        const issueLocation: admin.firestore.GeoPoint = data!!.position.geopoint;
 
 
         const nearestInstitutionLocation = tree.nearest({ lat: issueLocation.latitude, lng: issueLocation.longitude }, 1)[0][0]
@@ -53,5 +53,5 @@ export const mapCategoryToInstitution = functions.firestore
     })
 
 function getInstitutionObjectByLocation(location: { "lat": number, "lng": number }) {
-    return institution_location_mappings.municipality.find((mapping) => mapping.location == location)
+    return institution_location_mappings.municipality.find((mapping) => mapping.location === location)
 }

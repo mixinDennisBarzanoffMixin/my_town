@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "507714643447-hu8cnt80obtqqbjjoa1smfd5e94ep9rs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gmail.denisbarzanov2002.my_town",
+            "certificate_hash": "ef9fc492160fcb4b01a568f64eff654abafdea9d"
+          }
+        },
+        {
           "client_id": "507714643447-697dfjaubtcvab0bu4ukioa77sttfjpc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -13,7 +13,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   @override
   Stream<SettingsState> mapEventToState(SettingsEvent event) async* {
     if (event is MapVisibilitySettingsEvent) {
-      yield SettingsState((event as MapVisibilitySettingsEvent).showMap);
+      yield SettingsState(event.showMap);
     }
   }
 }

@@ -228,7 +228,7 @@ class _BackdropState extends State<Backdrop>
                                 widget.frontHeadingText,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .subhead
+                                    .subtitle1
                                     .copyWith(color: Colors.grey),
                               ),
                             ),

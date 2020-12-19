@@ -35,7 +35,7 @@ export const notifyAboutFirstReportAndIncreaseIssuesCount = functions.firestore
                     body: `You got an achievement for reporting your first issue`,
                     icon: 'your-icon-url', // TODO: add a proper icon
                     click_action: 'FLUTTER_NOTIFICATION_CLICK'
-                }, 
+                },
                 data: {
                     achievement: 'reporter'
                 }

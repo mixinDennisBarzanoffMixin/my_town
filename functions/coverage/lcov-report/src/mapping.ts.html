@@ -1,5 +1,7 @@
+
 <!doctype html>
 <html lang="en">
+
 <head>
     <title>Code coverage report for src/mapping.ts</title>
     <meta charset="utf-8" />
@@ -12,40 +14,48 @@
         }
     </style>
 </head>
+    
 <body>
 <div class='wrapper'>
-  <div class='pad1'>
-    <h1>
-      <a href="../index.html">All files</a> / <a href="index.html">src</a> mapping.ts
-    </h1>
-    <div class='clearfix'>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
-        <span class="quiet">Statements</span>
-        <span class='fraction'>22/22</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">75% </span>
-        <span class="quiet">Branches</span>
-        <span class='fraction'>3/4</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
-        <span class="quiet">Functions</span>
-        <span class='fraction'>6/6</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
-        <span class="quiet">Lines</span>
-        <span class='fraction'>20/20</span>
-      </div>
+    <div class='pad1'>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">src</a> mapping.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>22/22</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">75% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>3/4</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>6/6</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>20/20</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
     </div>
-    <p class="quiet">
-      Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
-    </p>
-  </div>
-  <div class='status-line high'></div>
-<pre><table class="coverage">
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
 <a name='L3'></a><a href='#L3'>3</a>
@@ -102,7 +112,8 @@
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -158,6 +169,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import * as functions from 'firebase-functions';
 import mappings from './categories.mappings.json';
 import institution_location_mappings from './institution_location_mappings.json'
@@ -166,7 +178,7 @@ import { kdTree } from 'kd-tree-javascript'
 import admin from 'firebase-admin';
 // import admin from 'firebase-admin';
 &nbsp;
-declare module Institution_Mappings {
+namespace Institution_Mappings {
 &nbsp;
     export interface Location {
         lat: number;
@@ -184,23 +196,23 @@ declare module Institution_Mappings {
     }
 }
 &nbsp;
-var locations = institution_location_mappings.municipality.map((mun) =&gt; mun.location);
+const locations = institution_location_mappings.municipality.map((mun) =&gt; mun.location);
 function distance(a: Institution_Mappings.Location, b: Institution_Mappings.Location) {
     return Math.pow(a.lat - b.lat, 2) + Math.pow(a.lng - b.lng, 2)
 }
-var tree = new kdTree(locations, distance, ["lat", "lng"])
+const tree = new kdTree(locations, distance, ["lat", "lng"])
 &nbsp;
 &nbsp;
 export const mapCategoryToInstitution = functions.firestore
     .document('issues/{issueId}') // TODO: write to issue_mapping
     .onWrite(async (change, context) =&gt; {
         const issue = change.after
-        const data = change.after.data()!!
-        const category = data.category
+        const data = change.after.data()
+        const category = data!!.category
         const institution = mappings.find(
-            (institution) =&gt; institution.causes.includes(category)
+            (institution_mapping) =&gt; institution_mapping.causes.includes(category)
         )
-        const issueLocation: admin.firestore.GeoPoint = data.position.geopoint;
+        const issueLocation: admin.firestore.GeoPoint = data!!.position.geopoint;
 &nbsp;
 &nbsp;
         const nearestInstitutionLocation = tree.nearest({ lat: issueLocation.latitude, lng: issueLocation.longitude }, 1)[0][0]
@@ -213,25 +225,26 @@ export const mapCategoryToInstitution = functions.firestore
     })
 &nbsp;
 function getInstitutionObjectByLocation(location: { "lat": number, "lng": number }) {
-    return institution_location_mappings.municipality.find((mapping) =&gt; mapping.location == location)
-}</pre></td></tr>
-</table></pre>
-<div class='push'></div><!-- for sticky footer -->
-</div><!-- /wrapper -->
-<div class='footer quiet pad2 space-top1 center small'>
-  Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Mar 13 2020 04:47:56 GMT+0200 (Eastern European Standard Time)
-</div>
-</div>
-<script src="../prettify.js"></script>
-<script>
-window.onload = function () {
-        if (typeof prettyPrint === 'function') {
-            prettyPrint();
-        }
-};
-</script>
-<script src="../sorter.js"></script>
-<script src="../block-navigation.js"></script>
-</body>
+    return institution_location_mappings.municipality.find((mapping) =&gt; mapping.location === location)
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
+                at Thu Jun 11 2020 14:33:31 GMT+0300 (Eastern European Summer Time)
+            </div>
+        </div>
+        <script src="../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
+    </body>
 </html>
+    

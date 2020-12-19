@@ -13,7 +13,6 @@ import 'package:my_town/shared/user.dart';
 import 'package:provider/provider.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 
-
 void main() {
   // debugPaintSizeEnabled = true;
   runApp(MyApp());
@@ -34,12 +33,12 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         initialRoute: '/issues',
         routes: {
-          '/issues':        (context) => I18n(child: IssuesScreen()),
-          '/login':         (context) => I18n(child: LoginScreen()),
+          '/issues': (context) => I18n(child: IssuesScreen()),
+          '/login': (context) => I18n(child: LoginScreen()),
           '/issue_details': (context) => I18n(child: IssueDetailScreen()),
-          '/report_issue':  (context) => I18n(child: ReportIssueScreen()),
-          '/settings':      (context) => I18n(child: SettingsScreen()),
-          '/achievements':  (context) => I18n(child: AchievementsScreen()),
+          '/report_issue': (context) => I18n(child: ReportIssueScreen()),
+          '/settings': (context) => I18n(child: SettingsScreen()),
+          '/achievements': (context) => I18n(child: AchievementsScreen()),
         },
         localizationsDelegates: [
           // ... app-specific localization delegate[s] here
@@ -51,6 +50,8 @@ class MyApp extends StatelessWidget {
           const Locale('en'), // English
           const Locale('bg'), // Bulgarian
         ],
+        locale: const Locale('en'),
+        // theme: Theme.of(context).copyWith(primaryColor: Colors.red),
       ),
     );
   }
